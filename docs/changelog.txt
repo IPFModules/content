@@ -1,3 +1,8 @@
+=== Content 1.2.2 ===
+Release date: 10 Oct 2018
+ '''Fixed'''
+ * Module version number is now text, no longer number
+ 
 === Content 1.2.1 Final ===
 Release date: 30 Dec 2016
  '''Fixed'''
