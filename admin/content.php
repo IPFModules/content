@@ -57,6 +57,7 @@ function editcontent($content_id = 0, $clone = false, $content_pid = false) {
 
 include_once "admin_header.php";
 
+global $content_content_handler;
 $content_content_handler = icms_getModuleHandler('content', basename(dirname(dirname(__FILE__))), "content");
 /** Use a naming convention that indicates the source of the content of the variable */
 $clean_op = '';
