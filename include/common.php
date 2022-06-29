@@ -12,7 +12,7 @@
 
 defined("ICMS_ROOT_PATH") or die("ICMS root path not defined");
 
-if(!defined("CONTENT_DIRNAME"))		define("CONTENT_DIRNAME", $modversion["dirname"] = basename(dirname(dirname(__FILE__))));
+if(!defined("CONTENT_DIRNAME"))		define("CONTENT_DIRNAME", $modversion["dirname"] = basename(dirname(__FILE__, 2)));
 if(!defined("CONTENT_URL"))			define("CONTENT_URL", ICMS_URL."/modules/".CONTENT_DIRNAME."/");
 if(!defined("CONTENT_ROOT_PATH"))	define("CONTENT_ROOT_PATH", ICMS_ROOT_PATH."/modules/".CONTENT_DIRNAME."/");
 if(!defined("CONTENT_IMAGES_URL"))	define("CONTENT_IMAGES_URL", CONTENT_URL."images/");

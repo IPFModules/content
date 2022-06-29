@@ -15,7 +15,7 @@
 include_once "header.php";
 $com_itemid = isset($_GET["com_itemid"]) ? (int)$_GET["com_itemid"] : 0;
 if ($com_itemid > 0) {
-	$content_content_handler = icms_getModuleHandler("content", basename(dirname(__FILE__)), "content");
+	$content_content_handler = icms_getModuleHandler("content", basename(__DIR__), "content");
 	$contentObj = $content_content_handler->get($com_itemid);
 	if ($contentObj && !$contentObj->isNew()) {
 		$com_replytext = "test...";

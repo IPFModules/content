@@ -14,7 +14,7 @@ $adminmenu[] = array(
 	'title'	=> _MI_CONTENT_CONTENTS,
 	'link'	=> 'admin/content.php');
 
-$module = icms::handler("icms_module")->getByDirname(basename(dirname(dirname(__FILE__))));
+$module = icms::handler("icms_module")->getByDirname(basename(dirname(__FILE__, 2)));
 $headermenu[] = array(
 	'title'	=> _PREFERENCES,
 	'link'	=> '../../system/admin.php?fct=preferences&amp;op=showmod&amp;mod=' . $module->getVar('mid'));

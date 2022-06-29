@@ -48,4 +48,5 @@ $icmsTpl->assign('content_module_home', '<a href="' . ICMS_URL . '/modules/' . i
 
 global $xoTheme;
 $xoTheme->addStylesheet(ICMS_URL . '/modules/content/include/content.css');
+
 include_once 'footer.php';

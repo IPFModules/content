@@ -13,7 +13,7 @@
  */
 
 function content_com_update($item_id, $total_num) {
-	$content_content_handler = icms_getModuleHandler("content", basename(dirname(dirname(__FILE__))), "content");
+	$content_content_handler = icms_getModuleHandler("content", basename(dirname(__FILE__, 2)), "content");
 	$content_content_handler->updateComments($item_id, $total_num);
 }
 

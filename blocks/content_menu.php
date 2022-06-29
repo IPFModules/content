@@ -19,7 +19,7 @@
 function content_content_menu_show($options) {
 	global $xoTheme;
 
-	include_once ICMS_ROOT_PATH.'/modules/' . basename(dirname(dirname(__FILE__))) . '/include/common.php';
+	include_once ICMS_ROOT_PATH.'/modules/' . basename(dirname(__FILE__, 2)) . '/include/common.php';
 
 	$block = array();
 	$block['showsubs'] = $options[2];
@@ -39,8 +39,8 @@ function content_content_menu_show($options) {
  * @return string $form The generated form HTML string
  */
 function content_content_menu_edit($options){
-	include_once ICMS_ROOT_PATH . '/modules/' . basename(dirname(dirname(__FILE__))) . '/include/common.php';
-	$content_content_handler = icms_getModuleHandler('content', basename(dirname(dirname(__FILE__))), 'content');
+	include_once ICMS_ROOT_PATH . '/modules/' . basename(dirname(__FILE__, 2)) . '/include/common.php';
+	$content_content_handler = icms_getModuleHandler('content', basename(dirname(__FILE__, 2)), 'content');
 
 	$sort = array('content_weight' => _CO_CONTENT_CONTENT_CONTENT_WEIGHT, 'content_title' => _CO_CONTENT_CONTENT_CONTENT_TITLE);
 	$selsort = new icms_form_elements_Select('', 'options[0]', $options[0]);
@@ -92,8 +92,8 @@ function content_content_menu_edit($options){
 function getPages($showsubs = true, $sort='content_weight', $order='ASC', $content_id = 0, $relateds = 0 ) {
 	$groups = is_object(icms::$user) ? icms::$user->getGroups() : array(ICMS_GROUP_ANONYMOUS);
 	$uid = is_object(icms::$user) ? icms::$user->getVar('uid') : 0;
-	$content_handler =& icms_getModuleHandler('content', basename(dirname(dirname(__FILE__))), 'content');
-	$module = icms::handler('icms_module')->getByDirname(basename(dirname(dirname(__FILE__))));
+	$content_handler =& icms_getModuleHandler('content', basename(dirname(__FILE__, 2)), 'content');
+	$module = icms::handler('icms_module')->getByDirname(basename(dirname(__FILE__, 2)));
 	$criteria = new icms_db_criteria_Compo(new icms_db_criteria_Item('content_status', 1));
 	if (!$relateds){
 		$criteria->add(new icms_db_criteria_Item('content_pid', $content_id));

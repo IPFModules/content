@@ -35,7 +35,7 @@ define ('CONTENT_DB_VERSION', 1);
  }*/
 
 function icms_module_update_content($module) {
-	$content_handler = icms_getModuleHandler('content', basename(dirname(dirname(__FILE__))), 'content');
+	$content_handler = icms_getModuleHandler('content', basename(dirname(__FILE__, 2)), 'content');
 	$gperm_handler = icms::handler('icms_member_groupperm');
 
 	$table = new icms_db_legacy_updater_Table('icmscontent');

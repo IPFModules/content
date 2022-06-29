@@ -17,12 +17,12 @@ function content_content_display_show($options) {
 
 	$block = array();
 
-	$xoTheme->addStylesheet(ICMS_URL . '/modules/' . basename(dirname(dirname(__FILE__))) . '/module.css');
-	$xoTheme->addStylesheet(ICMS_URL . '/modules/' . basename(dirname(dirname(__FILE__))) . '/include/content.css');
+	$xoTheme->addStylesheet(ICMS_URL . '/modules/' . basename(dirname(__FILE__, 2)) . '/module.css');
+	$xoTheme->addStylesheet(ICMS_URL . '/modules/' . basename(dirname(__FILE__, 2)) . '/include/content.css');
 
-	include_once ICMS_ROOT_PATH . '/modules/' . basename(dirname(dirname(__FILE__))) . '/include/common.php';
+	include_once ICMS_ROOT_PATH . '/modules/' . basename(dirname(__FILE__, 2)) . '/include/common.php';
 
-	$content_content_handler = icms_getModuleHandler('content', basename(dirname(dirname(__FILE__))), 'content');
+	$content_content_handler = icms_getModuleHandler('content', basename(dirname(__FILE__, 2)), 'content');
 
 	if ($options[0] == 0) {
 		$options[0] = $content_content_handler->getLastestCreated(false);
@@ -45,9 +45,9 @@ function content_content_display_show($options) {
 }
 
 function content_content_display_edit($options) {
-	include_once ICMS_ROOT_PATH . '/modules/' . basename(dirname(dirname(__FILE__))) . '/include/common.php';
+	include_once ICMS_ROOT_PATH . '/modules/' . basename(dirname(__FILE__, 2)) . '/include/common.php';
 
-	$content_content_handler = icms_getModuleHandler('content', basename(dirname(dirname(__FILE__))), 'content');
+	$content_content_handler = icms_getModuleHandler('content', basename(dirname(__FILE__, 2)), 'content');
 
 	$selpages = new icms_form_elements_Select('', 'options[0]', $options[0]);
 	$selpages->addOptionArray($content_content_handler->getContentList());

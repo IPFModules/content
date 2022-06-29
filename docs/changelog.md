@@ -1,3 +1,8 @@
+# Content 1.4.0
+Release date : 01/03/2022
+- Update version information
+- Version that is bundled with ImpressCMS 1.4.4
+
 # Content 1.3.0
 Release date : 24/12/2019
 - Update version information

@@ -17,14 +17,14 @@ defined("ICMS_ROOT_PATH") or die("ICMS root path not defined");
 $modversion = array(
 /**  General Information  */
 	'name'						=> _MI_CONTENT_MD_NAME,
-	'version'					=> "1.3.0",
+	'version'					=> "1.3.1",
 	'description'				=> _MI_CONTENT_MD_DESC,
 	'author'					=> "David Janssens (fiammybe)",
-	'credits'					=> "The ImpressCMS Project, Rodrigo P Lima aka TheRplima, Phoenyx, skenow, QM-B",
+	'credits'					=> "mekdrop, skenow, Rodrigo P Lima aka TheRplima, Phoenyx",
 	'help'						=> "",
 	'license'					=> "GNU General Public License v2 (GPLv2)",
 	'official'					=> 1,
-	'dirname'					=> basename(dirname(__FILE__)),
+	'dirname'					=> basename(__DIR__),
 	'modname'					=> "content",
 
 /**  Images information  */
@@ -33,9 +33,9 @@ $modversion = array(
 	'image'						=> "images/icon_big.png", /* for backward compatibility */
 
 /**  Development information */
-	'status_version'			=> "Final",
-	'status'					=> "Final",
-	'date'						=> "10 Oct 2019",
+	'status_version'			=> "final",
+	'status'					=> "final",
+	'date'						=> "9 Mar 2022",
 	'author_word'				=> "",
 	'warning'					=> _CO_ICMS_WARNING_FINAL,
 
@@ -83,7 +83,7 @@ $modversion['people']['translators'][] = "[url=https://www.impresscms.org/userin
 $modversion['manual']['wiki'][] = "<a href='http://wiki.impresscms.org/index.php?title=content' target='_blank'>English</a>";
 
 if (is_object(icms::$module) && icms::$module->getVar('dirname') == 'content') {
-	$content_content_handler = icms_getModuleHandler('content', basename(dirname(__FILE__)), 'content');
+	$content_content_handler = icms_getModuleHandler('content', basename(__DIR__), 'content');
 	if ($content_content_handler->userCanSubmit()) {
 		$modversion['sub'][1]['name'] = _MI_CONTENT_CONTENT_ADD;
 		$modversion['sub'][1]['url'] = 'content.php?op=mod';
