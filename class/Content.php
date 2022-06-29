@@ -16,6 +16,24 @@ defined("ICMS_ROOT_PATH") or die("ImpressCMS root path not defined");
  *
  * @since ImpressCMS 1.2
  * @author Rodrigo P Lima (aka TheRplima) <therplima@impresscms.org>
+ *
+ * @property int $content_id Content Id
+ * @property int $content_pid Parent ID
+ * @property int $content_uid User ID who created this content
+ * @property string $content_title Title
+ * @property string $content_body Body
+ * @property string $content_css Extra CSS for content
+ * @property string $content_tags Extra HTML tags
+ * @property int $content_visibility Visibility
+ * @property int $content_published_date Published date
+ * @property int $content_updated_date Updated date
+ * @property int $content_weight Weight
+ * @property int $content_status Status
+ * @property bool $content_makesymlink Make symlink ?
+ * @property bool $content_showsubs Show subs?
+ * @property bool $content_cancomment Can comment?
+ * @property int $content_comments
+ * @property bool $content_notification_sent Was notification sent?
  */
 class mod_content_Content extends icms_ipf_seo_Object {
 	private $_poster_info = false;
@@ -205,7 +223,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		$gperm_handler = icms::handler('icms_member_groupperm');
 		$groups = is_object(icms::$user) ? icms::$user->getGroups() : array(ICMS_GROUP_ANONYMOUS);
 
-		$module = icms::handler('icms_module')->getByDirname(basename(dirname(__FILE__, 2)));
+		$module = icms::handler('icms_module')->getByDirname(basename(dirname(dirname(__FILE__))));
 
 		$agroups = $gperm_handler->getGroupIds('module_admin', $module->getVar("mid"));
 		$allowed_groups = array_intersect($groups, $agroups);
@@ -348,7 +366,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 * @return VOID
 	 */
 	function sendNotifContentPublished() {
-		$module = icms::handler('icms_module')->getByDirname(basename(dirname(__FILE__, 2)));
+		$module = icms::handler('icms_module')->getByDirname(basename(dirname(dirname(__FILE__))));
 		$tags ['CONTENT_TITLE'] = $this->getVar('content_title');
 		$tags ['CONTENT_URL'] = $this->getItemLink(true);
 		icms::handler('icms_data_notification')->triggerEvent('global', 0, 'content_published', $tags, array(), $module->getVar('mid'));

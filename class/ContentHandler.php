@@ -9,6 +9,12 @@
  * @version		$Id$
  */
 
+use Imponeer\Database\Criteria\CriteriaCompo;
+use Imponeer\Database\Criteria\CriteriaItem;
+use Imponeer\Database\Criteria\Enum\ComparisionOperator;
+use Imponeer\Database\Criteria\Enum\Condition;
+use ImpressCMS\Core\Models\AbstractExtendedHandler;
+
 defined('ICMS_ROOT_PATH') or die('ImpressCMS root path not defined');
 
 /**
@@ -33,7 +39,7 @@ define('CONTENT_CONTENT_VISIBLE_DONTSHOW', 4);
  * @since ImpressCMS 1.2
  * @author Rodrigo P Lima (aka TheRplima) <therplima@impresscms.org>
  */
-class mod_content_ContentHandler extends icms_ipf_Handler {
+class mod_content_ContentHandler extends AbstractExtendedHandler {
 
 	/**
 	 * @private array of status
@@ -53,7 +59,7 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	public function __construct(&$db) {
 		parent::__construct($db, 'content', 'content_id', 'content_title', 'content_body', 'content');
 
-		icms_loadLanguageFile(basename(dirname(__FILE__, 2)), 'common');
+		icms_loadLanguageFile(basename(dirname(dirname(__FILE__))), 'common');
 		$this->addPermission('content_read', _CO_CONTENT_CONTENT_READ, _CO_CONTENT_CONTENT_READ_DSC);
 	}
 
@@ -127,34 +133,73 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 *
 	 * @param int $start to which record to start
 	 * @param int $limit limit of contents to return
-	 * @param int $content_uid if specifid, only the content of this user will be returned
-	 * @param int $cid if specifid, only the content related to this category will be returned
-	 * @param int $year of contents to display
-	 * @param int $month of contents to display
-	 * @param int $content_id ID of a single content to retrieve
-	 * @return icms_db_criteria_Compo $criteria
+	 * @param bool|int $authorID if specifid, only the content of this user will be returned
+	 * @param bool|string $tags
+	 * @param bool|int|string $id ID of a single content to retrieve
+	 * @param bool|int $parentId
+	 * @param string $order
+	 * @param string $sort
+	 *
+	 * @return CriteriaCompo $criteria
 	 */
-	public function getContentsCriteria($start = 0, $limit = 0, $content_uid = false, $content_tags=false, $content_id = false,  $content_pid = false, $order = 'content_published_date', $sort = 'DESC') {
-		$criteria = new icms_db_criteria_Compo();
-		if ($start) $criteria->setStart($start);
-		if ($limit) $criteria->setLimit((int)$limit);
+	public function getContentsCriteria($start = 0, $limit = 0, $authorID = false, $tags=false, $id = false, $parentId = false, $order = 'content_published_date', $sort = 'DESC'): CriteriaCompo {
+		$criteria = new CriteriaCompo(
+			new CriteriaItem('content_status', CONTENT_CONTENT_STATUS_PUBLISHED)
+		);
 		$criteria->setSort($order);
 		$criteria->setOrder($sort);
-		$criteria->add(new icms_db_criteria_Item('content_status', CONTENT_CONTENT_STATUS_PUBLISHED));
-		if ($content_uid) $criteria->add(new icms_db_criteria_Item('content_uid', $content_uid));
-		if ($content_tags) $criteria->add(new icms_db_criteria_Item('content_tags', '%'.$content_tags.'%', 'LIKE'));
-
-		if ($content_id) {
-			$crit = new icms_db_criteria_Compo(new icms_db_criteria_Item('short_url', $content_id,'LIKE'));
-			$alt_content_id = str_replace('-',' ',$content_id);
-			//Added for backward compatiblity in case short_url contains spaces instead of dashes.
-			$crit->add(new icms_db_criteria_Item('short_url', $alt_content_id),'OR');
-			$crit->add(new icms_db_criteria_Item('content_id', $content_id),'OR');
-			$criteria->add($crit);
+		if ($start) {
+			$criteria->setStart($start);
+		}
+		if ($limit) {
+			$criteria->setLimit((int)$limit);
+		}
+		if ($authorID) {
+			$criteria->add(
+				new CriteriaItem('content_uid', $authorID)
+			);
+		}
+		if ($tags) {
+			$criteria->add(
+				new CriteriaItem(
+					'content_tags',
+					'%' . $tags . '%',
+					ComparisionOperator::LIKE
+				)
+			);
 		}
 
-		if ($content_pid !== false)	$criteria->add(new icms_db_criteria_Item('content_pid', $content_pid));
+		if ($id) {
+			$subCriteria = new CriteriaCompo(
+				new CriteriaItem(
+					'short_url',
+					$id,
+					ComparisionOperator::LIKE
+				),
+				Condition::OR()
+			);
+			//Added for backward compatiblity in case short_url contains spaces instead of dashes.
+			$subCriteria->add(
+				new CriteriaItem(
+					'short_url',
+					str_replace('-',' ',$id)
+				),
+				Condition::OR()
+			);
+			$subCriteria->add(
+				new CriteriaItem('content_id', $id),
+				Condition::OR()
+			);
+			$criteria->add($subCriteria);
+		}
+
+		if ($parentId) {
+			$criteria->add(
+				new CriteriaItem('content_pid', $parentId)
+			);
+		}
 		$this->setGrantedObjectsCriteria($criteria, "content_read");
+
 		return $criteria;
 	}
 
@@ -167,7 +212,7 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 */
 	public function getContent($content_id) {
 		$ret = $this->getContents(0, 0, false, false, $content_id);
-		return isset($ret[$content_id]) ? $ret[$content_id] : false;
+		return $ret[$content_id] ?? false;
 	}
 
 
@@ -228,23 +273,23 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * @return array array of contents
 	 */
 	public function getContentsForSearch($queryarray, $andor, $limit, $offset, $userid) {
-		$criteria = new icms_db_criteria_Compo();
+		$criteria = new CriteriaCompo();
 		$criteria->setStart($offset);
 		$criteria->setLimit($limit);
-		if ($userid != 0) $criteria->add(new icms_db_criteria_Item('content_uid', $userid));
+		if ($userid != 0) $criteria->add(new CriteriaItem('content_uid', $userid));
 
 		if ($queryarray) {
-			$criteriaKeywords = new icms_db_criteria_Compo();
+			$criteriaKeywords = new CriteriaCompo();
 			for($i = 0; $i < count($queryarray); $i ++) {
-				$criteriaKeyword = new icms_db_criteria_Compo();
-				$criteriaKeyword->add(new icms_db_criteria_Item('content_title', '%' . $queryarray[$i] . '%', 'LIKE'), 'OR');
-				$criteriaKeyword->add(new icms_db_criteria_Item('content_body', '%' . $queryarray[$i] . '%', 'LIKE'), 'OR');
+				$criteriaKeyword = new CriteriaCompo();
+				$criteriaKeyword->add(new CriteriaItem('content_title', '%' . $queryarray[$i] . '%', 'LIKE'), 'OR');
+				$criteriaKeyword->add(new CriteriaItem('content_body', '%' . $queryarray[$i] . '%', 'LIKE'), 'OR');
 				$criteriaKeywords->add($criteriaKeyword, $andor);
 				unset($criteriaKeyword);
 			}
 			$criteria->add($criteriaKeywords);
 		}
-		$criteria->add(new icms_db_criteria_Item('content_status', CONTENT_CONTENT_STATUS_PUBLISHED));
+		$criteria->add(new CriteriaItem('content_status', CONTENT_CONTENT_STATUS_PUBLISHED));
 		return $this->getObjects($criteria, true, false);
 	}
 
@@ -258,7 +303,7 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 		if (!is_object(icms::$user)) return false;
 		if ($content_isAdmin) return true;
 		$user_groups = icms::$user->getGroups();
-		$module = icms::handler("icms_module")->getByDirname(basename(dirname(__FILE__, 2)), TRUE);
+		$module = icms::handler("icms_module")->getByDirname(basename(dirname(dirname(__FILE__))), TRUE);
 		return count(array_intersect($module->config['poster_groups'], $user_groups)) > 0;
 	}
 
@@ -293,7 +338,7 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 */
 	public function getContentsSubsCount($content_id = 0) {
 		$criteria = $this->getContentsCriteria();
-		$criteria->add(new icms_db_criteria_Item('content_pid', $content_id));
+		$criteria->add(new CriteriaItem('content_pid', $content_id));
 		return $this->getCount($criteria);
 	}
 
@@ -304,9 +349,9 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 */
 	public function getContentSubs($content_id = 0, $toarray=false) {
 		$criteria = $this->getContentsCriteria();
-		$criteria->add(new icms_db_criteria_Item('content_pid', $content_id));
-		$crit = new icms_db_criteria_Compo(new icms_db_criteria_Item('content_visibility', 2));
-		$crit->add(new icms_db_criteria_Item('content_visibility', 3),'OR');
+		$criteria->add(new CriteriaItem('content_pid', $content_id));
+		$crit = new CriteriaCompo(new CriteriaItem('content_visibility', 2));
+		$crit->add(new CriteriaItem('content_visibility', 3),'OR');
 		$criteria->add($crit);
 		$contents = $this->getObjects($criteria);
 		if (!$toarray) return $contents;
@@ -323,10 +368,10 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 
 
 	public function getList($content_status = null) {
-		$criteria = new icms_db_criteria_Compo();
+		$criteria = new CriteriaCompo();
 
 		if (isset($content_status)) {
-			$criteria->add(new icms_db_criteria_Item('content_status', (int)$content_status));
+			$criteria->add(new CriteriaItem('content_status', (int)$content_status));
 		}
 		$contents = & $this->getObjects($criteria, true);
 		foreach(array_keys($contents) as $i) {
@@ -337,23 +382,23 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 
 
 	public function getContentList($groups = array(), $perm = 'content_read', $status = null, $content_id = null, $showNull = true) {
-		$criteria = new icms_db_criteria_Compo();
+		$criteria = new CriteriaCompo();
 		if (is_array($groups) && !empty($groups)) {
-			$criteriaTray = new icms_db_criteria_Compo();
+			$criteriaTray = new CriteriaCompo();
 			foreach($groups as $gid) {
-				$criteriaTray->add(new icms_db_criteria_Item('gperm_groupid', $gid), 'OR');
+				$criteriaTray->add(new CriteriaItem('gperm_groupid', $gid), 'OR');
 			}
 			$criteria->add($criteriaTray);
 			if ($perm == 'content_read' || $perm == 'content_admin') {
-				$criteria->add(new icms_db_criteria_Item('gperm_name', $perm));
-				$criteria->add(new icms_db_criteria_Item('gperm_modid', 1));
+				$criteria->add(new CriteriaItem('gperm_name', $perm));
+				$criteria->add(new CriteriaItem('gperm_modid', 1));
 			}
 		}
 		if (isset($status)) {
-			$criteria->add(new icms_db_criteria_Item('content_status', (int)($status)));
+			$criteria->add(new CriteriaItem('content_status', (int)($status)));
 		}
 		if (is_null($content_id)) $content_id = 0;
-		$criteria->add(new icms_db_criteria_Item('content_pid', $content_id));
+		$criteria->add(new CriteriaItem('content_pid', $content_id));
 
 		$contents = $this->getObjects($criteria, true);
 		$ret = array();
@@ -372,7 +417,7 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 
 
 	public function makeLink($content) {
-		$count = $this->getCount(new icms_db_criteria_Item("short_url", $content->getVar("short_url")));
+		$count = $this->getCount(new CriteriaItem("short_url", $content->getVar("short_url")));
 
 		if ($count > 1) {
 			return $content->getVar('content_id');
@@ -492,20 +537,20 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 		$seo = $this->makelink($obj);
 		$url = str_replace(ICMS_URL.'/', '', $obj->handler->_moduleUrl . $obj->handler->_itemname . '.php?content_id=' . $obj->id() . '&page=' . $seo);
 		if ($obj->getVar('content_makesymlink') == 1) {
-			$criteria = new icms_db_criteria_Compo(new icms_db_criteria_Item('page_url', '%' . $seo, 'LIKE'));
-			$criteria->add(new icms_db_criteria_Item('page_moduleid', $module->getVar('mid')));
+			$criteria = new CriteriaCompo(new CriteriaItem('page_url', '%' . $seo, 'LIKE'));
+			$criteria->add(new CriteriaItem('page_moduleid', $module->mid));
 			$ct = $symlink_handler->getObjects($criteria);
 			if (count($ct) <= 0){
 				$symlink = $symlink_handler->create(true);
-				$symlink->setVar('page_moduleid', $module->getVar('mid'));
+				$symlink->setVar('page_moduleid', $module->mid);
 				$symlink->setVar('page_title', $obj->title());
 				$symlink->setVar('page_url', $url);
 				$symlink->setVar('page_status', 1);
 				$symlink_handler->insert($symlink);
 			}
 		} else {
-			$criteria = new icms_db_criteria_Compo(new icms_db_criteria_Item('page_url', '%' . $seo, 'LIKE'));
-			$criteria->add(new icms_db_criteria_Item('page_moduleid', $module->getVar('mid')));
+			$criteria = new CriteriaCompo(new CriteriaItem('page_url', '%' . $seo, 'LIKE'));
+			$criteria->add(new CriteriaItem('page_moduleid', $module->mid));
 			$ct = $symlink_handler->getObjects($criteria, FALSE, TRUE);
 			if($ct) $symlink_handler->delete($ct[0]);
 		}
@@ -523,12 +568,28 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	protected function afterDelete(&$obj) {
 		$seo = $obj->handler->makelink($obj);
 		$url = str_replace(ICMS_URL . '/', '', $obj->handler->_moduleUrl . $obj->handler->_itemname . '.php?content_id=' . $obj->getVar('content_id') . '&page=' . $seo);
-		$module = icms::handler('icms_module')->getByDirname(basename(dirname(__FILE__, 2)));
+		$module = icms::handler('icms_module')->getByDirname(basename(dirname(dirname(__FILE__))));
 		$symlink_handler = icms_getModuleHandler('pages', 'system');
-		$criteria = new icms_db_criteria_Compo(new icms_db_criteria_Item('page_url', $url));
-		$criteria->add(new icms_db_criteria_Item('page_moduleid', $module->getVar('mid')));
+		$criteria = new CriteriaCompo(new CriteriaItem('page_url', $url));
+		$criteria->add(new CriteriaItem('page_moduleid', $module->mid));
 		$symlink_handler->deleteAll($criteria);
 
 		return true;
+	}
+
+	/**
+	 * Gets by page id or name
+	 *
+	 * @param int|string $page Page id or name to get
+	 *
+	 * @return mod_content_Content|null
+	 */
+	public function getByPage($page): ?mod_content_Content
+	{
+		$page = is_numeric($page)?(int)$page:str_replace('-', ' ', urlencode($page));
+		$criteria = $this->getContentsCriteria(0, 1, false, false, $page, false, 'content_id', 'DESC');
+		$items = $this->getObjects($criteria);
+
+		return empty($items) ? null : current($items);
 	}
 }

@@ -13,7 +13,7 @@
  */
 
 /**
- * Edit a Content page
+ * Edit a Content
  *
  * @param int $content_id Contentid to be edited
  */
@@ -24,7 +24,7 @@ function editcontent($content_id = 0, $clone = false, $content_pid = false) {
 
 	if (!$clone && !$contentObj->isNew()) {
 		$contentObj->hideFieldFromForm(array('content_published_date', 'content_updated_date'));
-		if($contentObj->getVar("content_makesymlink") === 1) {
+		if($contentObj->getVar("content_makesymlink") == 1) {
 			//$contentObj->hideFieldFromForm("content_makesymlink");
 			$contentObj->makeFieldReadOnly("short_url");
 		}
@@ -57,7 +57,8 @@ function editcontent($content_id = 0, $clone = false, $content_pid = false) {
 
 include_once "admin_header.php";
 
-$content_content_handler = icms_getModuleHandler('content', basename(dirname(__FILE__, 2)), "content");
+global $content_content_handler;
+$content_content_handler = icms_getModuleHandler('content', basename(dirname(dirname(__FILE__))), "content");
 /** Use a naming convention that indicates the source of the content of the variable */
 $clean_op = '';
 /** Create a whitelist of valid values, be sure to use appropriate types for each value
@@ -65,18 +66,16 @@ $clean_op = '';
  */
 $valid_op = array('mod', 'changedField', 'addcontent', 'del', 'clone', 'view', '');
 
-if (isset($_GET ['op'])) {
-    $clean_op = htmlentities($_GET ['op']);
-}
-if (isset($_POST ['op'])) {
-    $clean_op = htmlentities($_POST ['op']);
-}
+if (isset($_GET ['op']))
+$clean_op = htmlentities($_GET ['op']);
+if (isset($_POST ['op']))
+$clean_op = htmlentities($_POST ['op']);
 
 /** Again, use a naming convention that indicates the source of the content of the variable */
-$clean_content_id = isset($_GET ['content_id']) ?(int)htmlentities($_GET ['content_id']) : 0;
-$clean_content_id = isset($_POST ['content_id']) ?(int)htmlentities($_POST ['content_id']) : htmlentities($clean_content_id);
-$clean_content_pid = isset($_GET ['content_pid']) ?(int)htmlentities($_GET ['content_pid']) : 0;
-$clean_content_pid = isset($_POST ['content_pid']) ?(int)htmlentities($_POST ['content_pid']) : htmlentities($clean_content_pid);
+$clean_content_id = isset($_GET ['content_id']) ?(int)$_GET ['content_id'] : 0;
+$clean_content_id = isset($_POST ['content_id']) ?(int)$_POST ['content_id'] : $clean_content_id;
+$clean_content_pid = isset($_GET ['content_pid']) ?(int)$_GET ['content_pid'] : 0;
+$clean_content_pid = isset($_POST ['content_pid']) ?(int)$_POST ['content_pid'] : $clean_content_pid;
 
 /**
  * in_array() is a native PHP function that will determine if the value of the
@@ -105,7 +104,7 @@ if (in_array($clean_op, $valid_op, true)) {
 			$contentObj = $content_content_handler->get($clean_content_id);
 			if(is_object($contentObj) && !$contentObj->isNew())  {
 				$subs = $contentObj->getContentSubs($clean_content_id, true);
-				if((isset($_POST['confirm']) && $_POST['confirm'] === TRUE) || !count($subs)) {
+				if((isset($_POST['confirm']) && $_POST['confirm'] == TRUE) || !count($subs)) {
 					$controller = new icms_ipf_Controller($content_content_handler);
 					$controller->handleObjectDeletion();
 				}

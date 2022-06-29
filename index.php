@@ -17,7 +17,8 @@ include_once 'header.php';
 $xoopsOption['template_main'] = 'content_index.html';
 include_once ICMS_ROOT_PATH . '/header.php';
 
-$content_content_handler = icms_getModuleHandler('content', basename(__DIR__), 'content');
+global $content_content_handler;
+$content_content_handler = icms_getModuleHandler('content', basename(dirname(__FILE__)), 'content');
 
 if (icms::$module->config['default_page'] == 0) {
 	// At which record shall we start display
@@ -32,7 +33,7 @@ if (icms::$module->config['default_page'] == 0) {
 	$extra = ($clean_content_uid !== false) ? 'uid=' . $clean_content_uid : FALSE;
 	$contents_count = $content_content_handler->getContentsCount($clean_content_uid);
 	$pagenav = new icms_view_PageNav($contents_count, icms::$module->config['contents_limit'], $clean_start, 'start', $extra);
-	
+
 	$icmsTpl->assign('navbar', $pagenav->renderNav());
 	if ($clean_content_uid) {
 		$icmsTpl->assign('content_category_path', sprintf(_CO_CONTENT_CONTENT_FROM_USER, icms_member_user_Handler::getUserLink($clean_content_uid)));
@@ -45,5 +46,7 @@ if (icms::$module->config['default_page'] == 0) {
 $icmsTpl->assign('showInfo', icms::$module->config['show_contentinfo']);
 $icmsTpl->assign('content_module_home', '<a href="' . ICMS_URL . '/modules/' . icms::$module->getVar('dirname') . '">' . icms::$module->getVar('name') . '</a>');
 
+global $xoTheme;
 $xoTheme->addStylesheet(ICMS_URL . '/modules/content/include/content.css');
+
 include_once 'footer.php';
