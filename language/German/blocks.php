@@ -14,7 +14,7 @@ defined("ICMS_ROOT_PATH") or die("ICMS root path not defined");
 
 define('_MB_CONTENT_CONTENT_SELPAGE','<b>Seite anzeigen:</b> <br /><small>Wählen Sie "---------------" aus, um immer die zuletzt erstellte Seite anzuzeigen.</small>');
 define('_MB_CONTENT_CONTENT_SHOWSUBS','<b>Verknüpfte Seiten anzeigen:</b>');
-define('_MB_CONTENT_CONTENT_SHOWBREADCRUMB','<b>Anzeigen Breadcrumbmenü:</b>');
+define('_MB_CONTENT_CONTENT_SHOWBREADCRUMB','<b>Anzeigen Breadcrumb Navigation:</b>');
 define('_MB_CONTENT_CONTENT_SHOWINFO','Autor und veröffentlichte Informationen anzeigen');
 define("_MB_CONTENT_CONTENT_SORT", "<b>Sortieren:</b>");
 define("_MB_CONTENT_CONTENT_ORDER", "<b>Auftrag:</b>");
