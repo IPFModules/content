@@ -55,6 +55,9 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 
 		icms_loadLanguageFile(basename(dirname(__FILE__, 2)), 'common');
 		$this->addPermission('content_read', _CO_CONTENT_CONTENT_READ, _CO_CONTENT_CONTENT_READ_DSC);
+        $mimetypes = array('image/jpeg', 'image/png', 'image/gif', 'image/webp');
+        //TODO make this work with icms_getConfig
+        $this->enableUpload($mimetypes, 5000000, 2500, 2500);
 	}
 
 	/**

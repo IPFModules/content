@@ -45,6 +45,10 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		$this->quickInitVar('content_cancomment', XOBJ_DTYPE_INT, false, false, false, true);
 		$this->quickInitVar('content_comments', XOBJ_DTYPE_INT);
 		$this->quickInitVar('content_notification_sent', XOBJ_DTYPE_INT);
+		$this->quickInitVar('content_background_image', XOBJ_DTYPE_IMAGE);
+		$this->quickInitVar('content_header_image', XOBJ_DTYPE_IMAGE);
+		$this->quickInitVar('content_social_image', XOBJ_DTYPE_IMAGE);
+
 
 		$this->hideFieldFromForm('content_comments');
 		$this->hideFieldFromForm('content_notification_sent');
@@ -66,6 +70,9 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		$this->setControl('content_visibility', array('itemHandler' => 'content', 'method' => 'getContent_visibleArray', 'module' => 'content'));
 		$this->setControl('content_pid', array('itemHandler' => 'content', 'method' => 'getContentList', 'module' => 'content'));
 		$this->setControl('categories', array('name' => 'categories', 'module' => 'imtagging'));
+        $this->setControl('content_background_image', 'image');
+        $this->setControl('content_header_image', 'image');
+        $this->setControl('content_social_image', 'image');
 		$this->setControl('content_makesymlink', 'yesno');
 		$this->setControl('content_showsubs', 'yesno');
 		$this->setControl('content_cancomment', 'yesno');
