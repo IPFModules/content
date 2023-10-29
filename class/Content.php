@@ -300,7 +300,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		return $ret;
 	}
 
-	function getViewItemLink($onlyUrl = false, $title = '', $target = '') {
+	function getViewItemLink($onlyUrl = false, $withimage = true, $userSide = false) {
 		$ret = '<a href="' . $this->handler->_moduleUrl . 'admin/' . $this->handler->_itemname . '.php?op=view&amp;content_id=' . $this->getVar('content_id', 'e') . '" title="' . _AM_CONTENT_VIEW . '"><img src="' . ICMS_IMAGES_SET_URL . '/actions/viewmag.png" /></a>';
 
 		return $ret;
