@@ -32,7 +32,13 @@ define("_MI_CONTENT_SHOWBREADCRUMBDSC", "Kies JA om een breadcrumb (navigatie me
 define("_MI_CONTENT_SHOWRELATEDS", "Toon onderliggende pagina's");
 define("_MI_CONTENT_SHOWRELATEDSDSC", "Zet op JA om de onderliggende pagina's weer te geven na de pagina inhoud.");
 define("_MI_CONTENT_SHOWINFO", "Toon auteur en publicatie informatie");
-define("_MI_CONTENT_SHOWINFODSC", "Kies JA om op de pagina inforamtie weer te geven over de auteur en de publicatie van de pagina.");
+define("_MI_CONTENT_SHOWINFODSC", "Kies JA om op de pagina informatie weer te geven over de auteur en de publicatie van de pagina.");
+define("_MI_CONTENT_EDIT_USERSIDEDSC", "Bewerkt de pagina in de frontend");
+define("_MI_CONTENT_EDIT_USERSIDEDSC", "Kies JA om de pagina' te bewerken in de frontend. NEEN om de pagina's te bewerken in de ACP.");
+define("_MI_CONTENT_EDITIMAGE", "Toon afbeelding op de bewerking link");
+define("_MI_CONTENT_EDITIMAGEDSC", "Kies JA om een afbeelding te tonen in de bewerk link. Dit werkt enkel wanneer 'Enkel URL' niet is gekozen.");
+define("_MI_CONTENT_EDITURL_ONLY", "Genereer enkel URL");
+define("_MI_CONTENT_EDITURL_ONLYDSC", "Kies JA om enkel een URL aan te maken voor de bewerkings functie, de rest van de weergave wordt door het thema voorzien.");
 
 // Blocks
 define("_MI_CONTENT_CONTENTDISPLAY", "Inhoud");
