@@ -374,6 +374,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 * @return array of article info
 	 */
 	function toArray() {
+        global $icmsConfig;
 		$ret = parent::toArray();
 
 		$ret['content_info'] = $this->getContentInfo();
@@ -382,8 +383,8 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		$ret['content_css'] = $this->getVar('content_css', 'e');
 		$ret['content_subs'] = $this->getContentSubs($this->getVar('content_id', 'e'), true);
 		$ret['content_hassubs'] = (count($ret['content_subs']) > 0) ? true : false;
-		$ret['editItemLink'] = $this->getEditItemLink(false, true, true);
-		$ret['deleteItemLink'] = $this->getDeleteItemLink(false, true, true);
+		$ret['editItemLink'] = $this->getEditItemLink($icmsConfig['show_content_edit_onlyurl'], $icmsConfig['show_content_edit_image'], $icmsConfig['show_content_edit_userside']);
+		$ret['deleteItemLink'] = $this->getDeleteItemLink($icmsConfig['show_content_edit_onlyurl'], $icmsConfig['show_content_edit_image'], $icmsConfig['show_content_edit_userside']);
 		$ret['userCanEditAndDelete'] = $this->userCanEditAndDelete();
 		$ret['content_posterid'] = $this->getVar('content_uid', 'e');
 		$ret['itemLink'] = $this->getItemLink();

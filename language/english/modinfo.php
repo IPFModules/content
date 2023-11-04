@@ -33,6 +33,12 @@ define("_MI_CONTENT_SHOWRELATEDS", "Show Related Pages");
 define("_MI_CONTENT_SHOWRELATEDSDSC", "Set to YES to show the related pages after the page content.");
 define("_MI_CONTENT_SHOWINFO", "Show author and published info");
 define("_MI_CONTENT_SHOWINFODSC", "Set to YES to show in the page informations about the author and publish of the page.");
+define("_MI_CONTENT_EDIT_USERSIDEDSC", "Edit content pages on user side");
+define("_MI_CONTENT_EDIT_USERSIDEDSC", "Set to YES to edit the contents on the user side (not in the ACP).");
+define("_MI_CONTENT_EDITIMAGE", "Show image on edit link");
+define("_MI_CONTENT_EDITIMAGEDSC", "Set to YES to show an image in the edit link. This only works when the Generate only URL is false.");
+define("_MI_CONTENT_EDITURL_ONLY", "Generate only URL");
+define("_MI_CONTENT_EDITURL_ONLYDSC", "Set to YES to only generate the URL of the edit functionality, the rest is handled by the theme.");
 
 // Blocks
 define("_MI_CONTENT_CONTENTDISPLAY", "Content");
