@@ -16,7 +16,7 @@ defined("ICMS_ROOT_PATH") or die("ICMS root path niet gedefiniëerd");
 define("_CO_CONTENT_CONTENT_CONTENT_PID", "Bovenliggende pagina");
 define("_CO_CONTENT_CONTENT_CONTENT_PID_DSC", "Indien ingevuld, de pagina waaronder deze pagina hangt als kind ");
 define("_CO_CONTENT_CONTENT_CONTENT_UID", "Auteur");
-define("_CO_CONTENT_CONTENT_CONTENT_UID_DSC", " ");
+define("_CO_CONTENT_CONTENT_CONTENT_UID_DSC", "Wie heeft de pagina oorspronkelijk geschreven? ");
 define("_CO_CONTENT_CONTENT_CONTENT_TITLE", "Titel");
 define("_CO_CONTENT_CONTENT_CONTENT_TITLE_DSC", " ");
 define("_CO_CONTENT_CONTENT_CONTENT_BODY", "Inhoud");
@@ -49,6 +49,12 @@ define("_CO_CONTENT_CONTENT_INFO", "Gepubliceerd door %s op %s. (%u x gelezen)")
 define("_CO_CONTENT_CONTENT_FROM_USER", "Alle inhoud van %s");
 define("_CO_CONTENT_CONTENT_COMMENTS_INFO", "%d commentaren");
 define("_CO_CONTENT_CONTENT_NO_COMMENT", "Geen commentaren");
+define("_CO_CONTENT_CONTENT_CONTENT_BACKGROUND_IMAGE", "Achtergrond afbeelding");
+define("_CO_CONTENT_CONTENT_CONTENT_BACKGROUND_IMAGE_DSC", "De achtergrond afbeelding (full-page) van de pagina.");
+define("_CO_CONTENT_CONTENT_CONTENT_HEADER_IMAGE", "Header afbeelding");
+define("_CO_CONTENT_CONTENT_CONTENT_HEADER_IMAGE_DSC", "De afbeelding voor in de header. Indien leeg wordt de achtergrond afbeelding hergebruikt");
+define("_CO_CONTENT_CONTENT_CONTENT_SOCIAL_IMAGE", "Social media afbeelding");
+define("_CO_CONTENT_CONTENT_CONTENT_SOCIAL_IMAGE_DSC", "Een afbeelding voor gebruik in sociale media. Indien leeg wordt de achtergrond afbeelding hergebruikt");
 
 //Status
 define("_CO_CONTENT_CONTENT_STATUS_PUBLISHED", "Gepubliceerd");
