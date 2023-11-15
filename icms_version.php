@@ -17,7 +17,7 @@ defined("ICMS_ROOT_PATH") or die("ICMS root path not defined");
 $modversion = array(
 /**  General Information  */
 	'name'						=> _MI_CONTENT_MD_NAME,
-	'version'					=> "1.3.1",
+	'version'					=> "1.3.3",
 	'description'				=> _MI_CONTENT_MD_DESC,
 	'author'					=> "David Janssens (fiammybe)",
 	'credits'					=> "mekdrop, skenow, Rodrigo P Lima aka TheRplima, Phoenyx",
@@ -33,11 +33,11 @@ $modversion = array(
 	'image'						=> "images/icon_big.png", /* for backward compatibility */
 
 /**  Development information */
-	'status_version'			=> "final",
-	'status'					=> "final",
-	'date'						=> "9 Mar 2022",
+	'status_version'			=> "beta",
+	'status'					=> "beta",
+	'date'						=> "14 Nov 2023",
 	'author_word'				=> "",
-	'warning'					=> _CO_ICMS_WARNING_FINAL,
+	'warning'					=> _CO_ICMS_WARNING_BETA,
 
 /** Contributors */
 	'developer_website_url'		=> "https://www.impresscms.org",
@@ -91,7 +91,7 @@ if (is_object(icms::$module) && icms::$module->getVar('dirname') == 'content') {
 }
 
 /** Blocks information */
-$modversion['blocks'][] = array(
+$modversion['blocks'][1] = array(
 	'file'			=> 'content_display.php',
 	'name'			=> _MI_CONTENT_CONTENTDISPLAY,
 	'description'	=> _MI_CONTENT_CONTENTDISPLAYDSC,
@@ -99,7 +99,7 @@ $modversion['blocks'][] = array(
 	'edit_func'		=> 'content_content_display_edit',
 	'options'		=> '0|1|1|1',
 	'template'		=> 'content_content_display.html');
-$modversion['blocks'][] = array(
+$modversion['blocks'][2] = array(
 	'file'			=> 'content_menu.php',
 	'name'			=> _MI_CONTENT_CONTENTMENU,
 	'description'	=> _MI_CONTENT_CONTENTMENUDSC,
@@ -107,6 +107,14 @@ $modversion['blocks'][] = array(
 	'edit_func'		=> 'content_content_menu_edit',
 	'options'		=> 'content_title|ASC|1|#59ADDB|0',
 	'template'		=> 'content_content_menu.html');
+$modversion['blocks'][3] = array(
+    'file'			=> 'content_spotlight.php',
+    'name'			=> _MI_CONTENT_CONTENTSPOTLIGHT,
+    'description'	=> _MI_CONTENT_CONTENTSPOTLIGHTDSC,
+    'show_func'		=> 'content_content_spotlight_show',
+    'edit_func'		=> 'content_content_spotlight_edit',
+    'options'		=> '0|text',
+    'template'		=> 'content_content_spotlight.html');
 
 /** Templates information */
 $modversion['templates'] = array(
@@ -165,6 +173,30 @@ $modversion['config'][] = array(
 	'name'			=> 'show_contentinfo',
 	'title'			=> '_MI_CONTENT_SHOWINFO',
 	'description'	=> '_MI_CONTENT_SHOWINFODSC',
+	'formtype'		=> 'yesno',
+	'valuetype'		=> 'int',
+	'default'		=> 1);
+
+$modversion['config'][] = array(
+	'name'			=> 'show_content_edit_userside',
+	'title'			=> '_MI_CONTENT_EDIT_USERSIDE',
+	'description'	=> '_MI_CONTENT_EDIT_USERSIDEDSC',
+	'formtype'		=> 'yesno',
+	'valuetype'		=> 'int',
+	'default'		=> 1);
+
+$modversion['config'][] = array(
+	'name'			=> 'show_content_edit_image',
+	'title'			=> '_MI_CONTENT_EDITIMAGE',
+	'description'	=> '_MI_CONTENT_EDITIMAGEDSC',
+	'formtype'		=> 'yesno',
+	'valuetype'		=> 'int',
+	'default'		=> 1);
+
+$modversion['config'][] = array(
+	'name'			=> 'show_content_edit_onlyurl',
+	'title'			=> '_MI_CONTENT_EDITURL_ONLY',
+	'description'	=> '_MI_CONTENT_EDITURL_ONLYDSC',
 	'formtype'		=> 'yesno',
 	'valuetype'		=> 'int',
 	'default'		=> 1);
