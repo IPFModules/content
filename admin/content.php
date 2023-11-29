@@ -164,6 +164,7 @@ if (in_array($clean_op, $valid_op, true)) {
 			$objectTable = new icms_ipf_view_Table($content_content_handler, $criteria);
 			$objectTable->addColumn(new icms_ipf_view_Column('content_title', false, false, 'getPreviewItemLink'));
 			$objectTable->addColumn(new icms_ipf_view_Column('content_subs', 'center', 100));
+			$objectTable->addColumn(new icms_ipf_view_Column('content_weight', 'center', 100));
 			$objectTable->addColumn(new icms_ipf_view_Column('counter', 'center', 100));
 			$objectTable->addColumn(new icms_ipf_view_Column('content_status', 'center', 150, 'getContent_statusControl'));
 			$objectTable->addColumn(new icms_ipf_view_Column('content_visibility', 'center', 150, 'getContent_visibleControl'));
@@ -181,6 +182,7 @@ if (in_array($clean_op, $valid_op, true)) {
 			$objectTable->addFilter('content_status', 'getContent_statusArray');
 			$objectTable->addFilter('content_uid', 'getPostersArray');
 			$objectTable->addFilter('content_pid', 'getContentList');
+			//$objectTable->addFilter('content_weight', 'getContentList');
 			$objectTable->addFilter('content_visibility', 'getContent_visibleArray');
 			$objectTable->addFilter('content_tags', 'getContent_tagsArray');
 
