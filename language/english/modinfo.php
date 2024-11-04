@@ -33,12 +33,20 @@ define("_MI_CONTENT_SHOWRELATEDS", "Show Related Pages");
 define("_MI_CONTENT_SHOWRELATEDSDSC", "Set to YES to show the related pages after the page content.");
 define("_MI_CONTENT_SHOWINFO", "Show author and published info");
 define("_MI_CONTENT_SHOWINFODSC", "Set to YES to show in the page informations about the author and publish of the page.");
+define("_MI_CONTENT_EDIT_USERSIDE", "Edit on userside");
+define("_MI_CONTENT_EDIT_USERSIDEDSC", "Set to YES to edit the pages in the frontend.");
+define("_MI_CONTENT_EDITIMAGE", "TODO");
+define("_MI_CONTENT_EDITIMAGEDSC", "TODO.");
+define("_MI_CONTENT_EDITURL_ONLY", "TODO");
+define("_MI_CONTENT_EDITURL_ONLYDSC", "Todo.");
 
 // Blocks
 define("_MI_CONTENT_CONTENTDISPLAY", "Content");
 define("_MI_CONTENT_CONTENTDISPLAYDSC", "Display the desired content page with some defined configurations.");
 define("_MI_CONTENT_CONTENTMENU", "Content Menu");
 define("_MI_CONTENT_CONTENTMENUDSC", "Show a block with a menu of content pages.");
+define("_MI_CONTENT_CONTENTSPOTLIGHT", "todo");
+define("_MI_CONTENT_CONTENTSPOTLIGHTDSC", "todo.");
 
 // Notifications
 define("_MI_CONTENT_GLOBAL_NOTIFY", "All contents");

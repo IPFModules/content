@@ -22,16 +22,18 @@ if(!defined("CONTENT_ADMIN_URL"))	define("CONTENT_ADMIN_URL", CONTENT_URL."admin
 icms_loadLanguageFile("content", "common");
 
 // Creating the module object to make it available throughout the module
-$contentModule = icms_getModuleInfo(CONTENT_DIRNAME);
+$contentModule = icms::$module->getInfo(CONTENT_DIRNAME);
 if (is_object($contentModule)){
-	$content_moduleName = $contentModule->getVar("name");
+    $content_moduleName = icms::$module->getVar("name"); //$contentModule->getVar("name");
 }
 
 // Find if the user is admin of the module and make this info available throughout the module
 $content_isAdmin = icms_userIsAdmin(CONTENT_DIRNAME);
+icms::$user->isAdmin(icms::$module->get);
 
 // Creating the module config array to make it available throughout the module
-$contentConfig = icms_getModuleConfig(CONTENT_DIRNAME);
+//$contentConfig = icms_getModuleConfig(CONTENT_DIRNAME);
+//$contentConfig = icms::$module->config3.;
 
 // creating the icmsPersistableRegistry to make it available throughout the module
 $icmsPersistableRegistry = icms_ipf_registry_Handler::getInstance();
