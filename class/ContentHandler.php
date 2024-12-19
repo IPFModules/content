@@ -56,10 +56,10 @@ class mod_content_ContentHandler extends AbstractExtendedHandler {
 	 */
 	public $_content_tagsArray = array();
 
-	public function __construct(&$db) {
+	public function __construct(& $db) {
 		parent::__construct($db, 'content', 'content_id', 'content_title', 'content_body', 'content');
 
-		icms_loadLanguageFile(basename(dirname(dirname(__FILE__))), 'common');
+		icms_loadLanguageFile(basename(dirname(__FILE__, 2)), 'common');
 		$this->addPermission('content_read', _CO_CONTENT_CONTENT_READ, _CO_CONTENT_CONTENT_READ_DSC);
 	}
 
@@ -373,7 +373,7 @@ class mod_content_ContentHandler extends AbstractExtendedHandler {
 		if (isset($content_status)) {
 			$criteria->add(new CriteriaItem('content_status', (int)$content_status));
 		}
-		$contents = & $this->getObjects($criteria, true);
+		$contents = $this->getObjects($criteria, true);
 		foreach(array_keys($contents) as $i) {
 			$ret[$contents[$i]->getVar('content_id')] = $contents[$i]->getVar('content_title');
 		}
