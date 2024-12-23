@@ -23,7 +23,7 @@ if (icms::$module->config['default_page'] == 0) {
 	// At which record shall we start display
 	$clean_start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
 	$clean_content_uid = isset($_GET['uid']) ? (int)$_GET['uid'] : false;
-	$clean_content_tags = isset($_GET['tag']) ? filter_input(INPUT_GET, 'tag', FILTER_SANITIZE_MAGIC_QUOTES) : false;
+	$clean_content_tags = isset($_GET['tag']) ? filter_input(INPUT_GET, 'tag', FILTER_SANITIZE_ADD_SLASHES) : false;
 	$clean_content_pid = isset($_GET['pid']) ? (int)$_GET['pid'] : (($clean_content_uid || $clean_content_tags) ? false : 0);
 
 	$content = $content_content_handler->getContents($clean_start, icms::$module->config['contents_limit'], $clean_content_uid, $clean_content_tags, false, $clean_content_pid);
@@ -32,7 +32,7 @@ if (icms::$module->config['default_page'] == 0) {
 	$extra = ($clean_content_uid !== false) ? 'uid=' . $clean_content_uid : FALSE;
 	$contents_count = $content_content_handler->getContentsCount($clean_content_uid);
 	$pagenav = new icms_view_PageNav($contents_count, icms::$module->config['contents_limit'], $clean_start, 'start', $extra);
-	
+
 	$icmsTpl->assign('navbar', $pagenav->renderNav());
 	if ($clean_content_uid) {
 		$icmsTpl->assign('content_category_path', sprintf(_CO_CONTENT_CONTENT_FROM_USER, icms_member_user_Handler::getUserLink($clean_content_uid)));
