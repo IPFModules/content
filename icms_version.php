@@ -33,6 +33,7 @@ $modversion = array(
 	'image'						=> "images/icon_big.png", /* for backward compatibility */
 
 /**  Development information */
+
 	'status_version'			=> "1.4.0",
 	'status'					=> "final",
 	'date'						=> "01 Jan 2025",
