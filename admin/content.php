@@ -20,7 +20,12 @@
 function editcontent($content_id = 0, $clone = false, $content_pid = false) {
 	global $content_content_handler, $icmsAdminTpl;
 
-	$contentObj = $content_content_handler->get($content_id);
+	// Create a new object if content_id is 0, otherwise retrieve the existing object
+	if ($content_id == 0) {
+		$contentObj = $content_content_handler->create(true);
+	} else {
+		$contentObj = $content_content_handler->get($content_id);
+	}
 
 	if (!$clone && !$contentObj->isNew()) {
 		$contentObj->hideFieldFromForm(array('content_published_date', 'content_updated_date'));
