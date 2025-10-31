@@ -45,6 +45,8 @@ define("_MI_CONTENT_CONTENTDISPLAY", "Inhoud");
 define("_MI_CONTENT_CONTENTDISPLAYDSC", "Toon de gewenste pagina met bijkomende configuratie.");
 define("_MI_CONTENT_CONTENTMENU", "Inhoud Menu");
 define("_MI_CONTENT_CONTENTMENUDSC", "Toon een blok met een menu van inhoudspagina's.");
+define("_MI_CONTENT_CONTENTSPOTLIGHT", "Inhoud Pagina spotlight");
+define("_MI_CONTENT_CONTENTSPOTLIGHTDSC", "Toon een block om een specifieke inhoudpagina in de kijker te zetten.");
 
 // Notifications
 define("_MI_CONTENT_GLOBAL_NOTIFY", "Alle inhoud");

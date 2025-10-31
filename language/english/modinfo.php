@@ -45,6 +45,8 @@ define("_MI_CONTENT_CONTENTDISPLAY", "Content");
 define("_MI_CONTENT_CONTENTDISPLAYDSC", "Display the desired content page with some defined configurations.");
 define("_MI_CONTENT_CONTENTMENU", "Content Menu");
 define("_MI_CONTENT_CONTENTMENUDSC", "Show a block with a menu of content pages.");
+define("_MI_CONTENT_CONTENTSPOTLIGHT", "Content Page spotlight");
+define("_MI_CONTENT_CONTENTSPOTLIGHTDSC", "Show a block to spotlight a specific content page.");
 
 // Notifications
 define("_MI_CONTENT_GLOBAL_NOTIFY", "All contents");
