@@ -140,18 +140,25 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		return $content_visibleArray[$ret];
 	}
 
-	public function content_tags() {
-		if ($this->getVar('content_tags', 'e') != '') {
-			$tags = explode (',', $this->getVar('content_tags', 'e'));
-			foreach ($tags as $k => $tag) {
-				$tag = trim ($tag);
-				$tag = ' <a href="' . $this->handler->_moduleUrl . 'index.php?tag=' . $tag . '">' . $tag . '</a>';
-				$tags[$k] = $tag;
-			}
-			return implode(',', $tags);
-		} else {
-			return false;
+	/**
+	 * Get formatted content tags with links
+	 *
+	 * @return string Comma-separated linked tags, or empty string if no tags
+	 */
+	public function content_tags(): string
+	{
+		$tagsStr = $this->getVar('content_tags', 'e');
+		if ($tagsStr == '') {
+			return '';
 		}
+
+		$tags = explode(',', $tagsStr);
+		foreach ($tags as $k => $tag) {
+			$tag = trim($tag);
+			$tag = ' <a href="' . $this->handler->_moduleUrl . 'index.php?tag=' . $tag . '">' . $tag . '</a>';
+			$tags[$k] = $tag;
+		}
+		return implode(',', $tags);
 	}
 
 	/**
@@ -168,11 +175,29 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		return $ret;
 	}
 
-	function getReads() {
+	/**
+	 * Get the number of reads/views for this content
+	 *
+	 * @return int Number of reads
+	 */
+	public function getReads(): int
+	{
 		return $this->getVar('counter');
 	}
 
-	public function setReads($qtde = null) {
+	/**
+	 * Set/increment the number of reads for this content
+	 *
+	 * @param int|null $qtde Quantity to add (null to increment by 1)
+	 * @return void
+	 * @throws InvalidArgumentException if qtde is not a valid integer
+	 */
+	public function setReads($qtde = null): void
+	{
+		if ($qtde !== null && (!is_int($qtde) || $qtde < 0)) {
+			throw new InvalidArgumentException('Quantity must be a non-negative integer or null');
+		}
+
 		$t = $this->getVar('counter');
 		if (isset($qtde)) {
 			$t += $qtde;
@@ -209,7 +234,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 *	- he is an admin OR
 	 * 	  - he is the poster of this page
 	 *
-     * @param $perm_name
+     * @param string $perm_name Permission name to check (optional, for future use)
      * @return bool true if user can view this page, false if not
 	 */
 	public function accessGranted($perm_name = ''): bool
@@ -283,7 +308,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	}
 
 	/**
-	 * Check to see wether the current user can edit or delete this page
+	 * Check to see whether the current user can edit or delete this page
 	 *
 	 * @return bool true if he can, false if not
 	 */
@@ -295,9 +320,20 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		return $this->getVar('content_uid', 'e') == icms::$user->getVar("uid");
 	}
 
+	/**
+	 * Get preview item link
+	 *
+	 * @return string HTML link to preview the content
+	 * @throws InvalidArgumentException if content object is invalid
+	 */
 	public function getPreviewItemLink(): string
     {
-		$seo = $this->handler->makelink($this);
+		try {
+			$seo = $this->handler->makelink($this);
+		} catch (InvalidArgumentException $e) {
+			throw new InvalidArgumentException('Cannot create preview link: ' . $e->getMessage());
+		}
+
 		$ret = '<a href="' . $this->handler->_moduleUrl . $this->handler->_itemname . '.php?content_id=' . $this->getVar('content_id', 'e') . '&amp;page=' . $seo . '" title="' . _AM_CONTENT_PREVIEW . '" target="_blank">' . $this->getVar('content_title') . '</a>';
 
 		return $ret;
@@ -377,9 +413,21 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		icms::handler('icms_data_notification')->triggerEvent('global', 0, 'content_published', $tags, array(), $module->getVar('mid'));
 	}
 
+	/**
+	 * Get item link
+	 *
+	 * @param bool $onlyUrl Return only URL without HTML link tag
+	 * @return string HTML link to the content or URL only
+	 * @throws InvalidArgumentException if content object is invalid
+	 */
 	public function getItemLink($onlyUrl = false): string
     {
-		$seo = $this->handler->makelink($this);
+		try {
+			$seo = $this->handler->makelink($this);
+		} catch (InvalidArgumentException $e) {
+			throw new InvalidArgumentException('Cannot create item link: ' . $e->getMessage());
+		}
+
 		$url = $this->handler->_moduleUrl . $this->handler->_itemname . '.php?content_id=' . $this->getVar('content_id') . '&amp;page=' . $seo;
 		if ($onlyUrl) return $url;
 		return '<a href="' . $url . '" title="">' . $this->getVar('content_title') . '</a>';
