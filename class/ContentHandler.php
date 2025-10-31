@@ -305,7 +305,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 *
 	 * @return array of contents
 	 */
-	public function getContentSubs($content_id = 0, $toarray=false) {
+	public function getContentSubs($content_id = 0, $toarray=false): array
+    {
 		$criteria = $this->getContentsCriteria();
 		$criteria->add(new icms_db_criteria_Item('content_pid', $content_id));
 		$crit = new icms_db_criteria_Compo(new icms_db_criteria_Item('content_visibility', 2));
@@ -331,7 +332,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 		if (isset($content_status)) {
 			$criteria->add(new icms_db_criteria_Item('content_status', (int)$content_status));
 		}
-		$contents = $this->getObjects($criteria, true);
+        $objects = $this->getObjects($criteria, true);
+        $contents = &$objects;
 		foreach(array_keys($contents) as $i) {
 			$ret[$contents[$i]->getVar('content_id')] = $contents[$i]->getVar('content_title');
 		}
@@ -339,7 +341,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	}
 
 
-	public function getContentList($groups = array(), $perm = 'content_read', $status = null, $content_id = null, $showNull = true) {
+	public function getContentList($groups = array(), $perm = 'content_read', $status = null, $content_id = null, $showNull = true): array
+    {
 		$criteria = new icms_db_criteria_Compo();
 		if (is_array($groups) && !empty($groups)) {
 			$criteriaTray = new icms_db_criteria_Compo();
@@ -404,7 +407,7 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * @param integer $content_id
 	 * @return string
 	 */
-	public function getBreadcrumbForPid($content_id, $userside=false){
+	public function getBreadcrumbForPid(int $content_id, $userside=false){
 		$url = $_SERVER['PHP_SELF'];
 		$ret = false;
 
@@ -443,7 +446,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * @param int $total_num total number of comments so far in this content
 	 * @return VOID
 	 */
-	public function updateComments($content_id, $total_num) {
+	public function updateComments($content_id, $total_num): void
+    {
 		$contentObj = $this->get($content_id);
 		if ($contentObj && !$contentObj->isNew()) {
 			$contentObj->setVar('content_comments', $total_num);
@@ -459,7 +463,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * @param object $obj Content object
 	 * @return true
 	 */
-	protected function beforeSave(&$obj) {
+	protected function beforeSave(&$obj): bool
+    {
 		if ($obj->updating_counter)
 		return true;
 
@@ -481,7 +486,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * @param object $obj Content object
 	 * @return true
 	 */
-	protected function afterSave(&$obj) {
+	protected function afterSave(&$obj): bool
+    {
 		if ($obj->updating_counter)
 		return true;
 
@@ -523,7 +529,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * @param object $obj Content object
 	 * @return true
 	 */
-	protected function afterDelete(&$obj) {
+	protected function afterDelete(&$obj): bool
+    {
 		$seo = $obj->handler->makelink($obj);
 		$url = str_replace(ICMS_URL . '/', '', $obj->handler->_moduleUrl . $obj->handler->_itemname . '.php?content_id=' . $obj->getVar('content_id') . '&page=' . $seo);
 		$module = icms::handler('icms_module')->getByDirname(basename(dirname(__FILE__, 2)));
