@@ -17,7 +17,7 @@ defined("ICMS_ROOT_PATH") or die("ICMS root path not defined");
 $modversion = array(
 /**  General Information  */
 	'name'						=> _MI_CONTENT_MD_NAME,
-	'version'					=> "1.4.0",
+	'version'					=> "2.0.0",
 	'description'				=> _MI_CONTENT_MD_DESC,
 	'author'					=> "David Janssens (fiammybe)",
 	'credits'					=> "mekdrop, skenow, Rodrigo P Lima aka TheRplima, Phoenyx",
@@ -33,10 +33,9 @@ $modversion = array(
 	'image'						=> "images/icon_big.png", /* for backward compatibility */
 
 /**  Development information */
-
-	'status_version'			=> "1.4.0",
-	'status'					=> "final",
-	'date'						=> "01 Jan 2025",
+	'status_version'			=> "beta",
+	'status'					=> "beta",
+	'date'						=> "1 Oct 2026",
 	'author_word'				=> "",
 	'warning'					=> _CO_ICMS_WARNING_BETA,
 
@@ -69,7 +68,7 @@ $modversion = array(
 	'hasMain'					=> 1,
 
 /** Database information */
-	'object_items'				=> array('content'));
+	'object_items'				=> array('content', 'blocktype', 'blockitem', 'zone'));
 
 $modversion["tables"] = icms_getTablesArray($modversion['dirname'], $modversion['object_items']);
 $modversion['people']['developers'][] = "[url=https://www.impresscms.org/userinfo.php?uid=1102]David Janssens (fiammybe)[/url]";
@@ -117,6 +116,8 @@ $modversion['templates'] = array(
 	array('file' => 'content_header.html', 'description' => 'Module Header'),
 	array('file' => 'content_footer.html', 'description' => 'Module Footer'),
 	array('file' => 'content_admin_content.html', 'description' => 'Content Index'),
+	array('file' => 'content_admin_blocktype.html', 'description' => 'Building block types admin'),
+	array('file' => 'content_admin_builder.html', 'description' => 'Page builder'),
 	array('file' => 'content_index.html', 'description' => 'Content Index'),
 	array('file' => 'content_single_content.html', 'description' => 'Single content template'),
 	array('file' => 'content_content.html', 'description' => 'Content page'),
@@ -196,7 +197,6 @@ $modversion['config'][] = array(
 	'formtype'		=> 'yesno',
 	'valuetype'		=> 'int',
 	'default'		=> 1);
-
 
 /** Notification information */
 $modversion['hasNotification'] = 1;

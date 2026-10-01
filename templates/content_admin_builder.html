@@ -1,0 +1,40 @@
+<div class="content-builder">
+    <div class="content-builder__toolbar">
+        <h2 class="content-builder__title"><{$content_builder_title}></h2>
+        <div class="content-builder__actions">
+            <button type="button" class="content-builder__button" data-builder-device="desktop" title="Desktop">&#128187;</button>
+            <button type="button" class="content-builder__button" data-builder-device="tablet" title="Tablet">&#128203;</button>
+            <button type="button" class="content-builder__button" data-builder-device="mobile" title="Mobile">&#128241;</button>
+            <button type="button" class="content-builder__button" data-builder-command="outline" title="Outline">&#9634;</button>
+            <button type="button" class="content-builder__button" data-builder-command="undo" title="Undo">&#8630;</button>
+            <button type="button" class="content-builder__button" data-builder-command="redo" title="Redo">&#8631;</button>
+            <button type="button" class="content-builder__button" data-builder-command="preview" title="Preview">&#128065;</button>
+            <span id="content-builder-status" class="content-builder__status"></span>
+            <a class="content-builder__button" href="<{$content_builder_back_url}>"><{$smarty.const._AM_CONTENT_BUILDER_BACK}></a>
+            <a class="content-builder__button" href="<{$content_builder_view_url}>" target="_blank" rel="noopener"><{$smarty.const._AM_CONTENT_BUILDER_VIEW}></a>
+            <button type="button" class="content-builder__button content-builder__button--primary" data-builder-command="save"><{$smarty.const._AM_CONTENT_BUILDER_SAVE}></button>
+        </div>
+    </div>
+    <div class="content-builder__workspace">
+        <div class="content-builder__canvas">
+            <div id="content-builder-canvas"></div>
+        </div>
+        <div class="content-builder__sidebar gjs-one-bg gjs-two-color">
+            <div class="content-builder__tabs">
+                <button type="button" class="content-builder__tab is-active" data-builder-pane="blocks"><{$smarty.const._AM_CONTENT_BUILDER_BLOCKS}></button>
+                <button type="button" class="content-builder__tab" data-builder-pane="layers"><{$smarty.const._AM_CONTENT_BUILDER_LAYERS}></button>
+                <button type="button" class="content-builder__tab" data-builder-pane="traits"><{$smarty.const._AM_CONTENT_BUILDER_SETTINGS}></button>
+            </div>
+            <div class="content-builder__pane" data-builder-pane-content="blocks">
+                <div id="content-builder-blocks"></div>
+            </div>
+            <div class="content-builder__pane" data-builder-pane-content="layers" hidden>
+                <div id="content-builder-layers"></div>
+            </div>
+            <div class="content-builder__pane" data-builder-pane-content="traits" hidden>
+                <div id="content-builder-traits"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="application/json" id="content-builder-config"><{$content_builder_config}></script>

@@ -1,0 +1,31 @@
+<{if $content_blocktype_table}><{$content_blocktype_table}><{/if}>
+<{if $content_blocktype_form}><{includeq file='db:system_common_form.html' form=$content_blocktype_form}><{/if}>
+<{if $content_blocktype_singleview}>
+    <{$content_blocktype_singleview}>
+    <{if $content_blocktype_errors}>
+        <div class="errorMsg">
+            <{foreach item=error from=$content_blocktype_errors}>
+                <p><{$error}></p>
+            <{/foreach}>
+        </div>
+    <{/if}>
+    <div class="content-blocktype-details">
+        <h3><{$smarty.const._AM_CONTENT_BLOCKTYPE_ZONES}></h3>
+        <ul>
+            <{foreach item=zone key=key from=$content_blocktype_zones}>
+                <li><code><{$key}></code> &ndash; <{$zone.label|escape}> (<{$zone.type}>)</li>
+            <{/foreach}>
+        </ul>
+        <{if $content_blocktype_slots}>
+            <h3><{$smarty.const._AM_CONTENT_BLOCKTYPE_SLOTS}></h3>
+            <ul>
+                <{foreach item=slot from=$content_blocktype_slots}>
+                    <li><code><{$slot}></code></li>
+                <{/foreach}>
+            </ul>
+        <{/if}>
+    </div>
+    <h3><{$smarty.const._AM_CONTENT_BLOCKTYPE_PREVIEW}></h3>
+    <style type="text/css"><{$content_blocktype_preview_css}></style>
+    <div class="content-blocktype-preview"><{$content_blocktype_preview}></div>
+<{/if}>

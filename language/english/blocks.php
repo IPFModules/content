@@ -20,3 +20,4 @@ define("_MB_CONTENT_CONTENT_SORT", "<b>Sort:</b>");
 define("_MB_CONTENT_CONTENT_ORDER", "<b>Order:</b>");
 define("_MB_CONTENT_CONTENT_SELCOLOR", "<b>Background color of the selected item:</b>");
 define("_MB_CONTENT_CONTENT_CONTID", '<b>Show only sub-pages from:</b> <br /><small>Select "---------------" to not filter and show all pages.</small>');
+define('_MB_CONTENT_CONTENT_SPOTLIGHT_TEXT', '<b>Spotlight text:</b> <br /><small>Shown above the page content. HTML is allowed.</small>');

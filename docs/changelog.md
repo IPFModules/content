@@ -1,3 +1,13 @@
+# Content 2.0.0 beta
+Release date : 01/10/2026
+## Added
+- Page builder based on GrapesJS (0.23.6, bundled in assets/grapesjs): a page can use the new *Building blocks* layout instead of the content body
+- Building blocks can be nested in named slots and contain editable zones: rich text, plain text, image and link
+- Building block types are IPF objects managed in the admin (template, CSS, icon, allowed nested blocks), default types are seeded on install and update
+- The building blocks of a page are stored as IPF objects (building blocks and zones) and rendered on the server; the rendered HTML is cached on the page and used for display, search and teasers
+- Images in the page builder are chosen and uploaded in the ImpressCMS image manager
+- Cloning a page also clones its building blocks
+
 # Content 1.4.0
 Release date : 01/03/2022
 - Update version information

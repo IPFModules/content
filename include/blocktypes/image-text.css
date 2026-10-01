@@ -1,0 +1,6 @@
+.cb-media { display: grid; gap: 1.5rem; grid-template-columns: 1fr; margin: 1rem 0; }
+.cb-media__image { display: block; height: auto; max-width: 100%; }
+.cb-media__body { min-width: 0; }
+@media (min-width: 768px) {
+    .cb-media { align-items: start; grid-template-columns: 1fr 2fr; }
+}

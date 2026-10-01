@@ -13,11 +13,15 @@
 function editcontent($contentObj) {
 	global $content_content_handler, $icmsTpl;
 
+	if ($contentObj->hasBlockLayout()) {
+		$contentObj->hideFieldFromForm('content_body');
+	}
+
 	if (!$contentObj->isNew()){
 		if (!$contentObj->userCanEditAndDelete()) {
 			redirect_header($contentObj->getItemLink(true), 3, _NOPERM);
 		}
-		$contentObj->hideFieldFromForm(array('content_published_date', 'content_updated_date', 'content_uid', 'meta_keywords', 'meta_description', 'short_url', 'content_makesymlink', 'content_css', 'content_visibility', 'content_weight', 'content_status', 'content_cancomment', 'content_showsubs'));
+		$contentObj->hideFieldFromForm(array('content_published_date', 'content_updated_date', 'content_uid', 'meta_keywords', 'meta_description', 'short_url', 'content_makesymlink', 'content_css', 'content_visibility', 'content_weight', 'content_status', 'content_cancomment', 'content_showsubs', 'content_layout'));
 		$sform = $contentObj->getSecureForm(_MD_CONTENT_CONTENT_EDIT, 'addcontent');
 		$sform->assign($icmsTpl, 'content_contentform');
 		$icmsTpl->assign('content_category_path', $contentObj->getVar('content_title') . ' > ' . _EDIT);
@@ -27,7 +31,7 @@ function editcontent($contentObj) {
 		}
 		$contentObj->setVar('content_uid', icms::$user->getVar("uid"));
 		$contentObj->setVar('content_published_date', date(_DATESTRING));
-		$contentObj->hideFieldFromForm(array('content_published_date', 'content_updated_date', 'content_uid', 'meta_keywords', 'meta_description', 'short_url', 'content_makesymlink', 'content_css', 'content_visibility', 'content_weight', 'content_status', 'content_cancomment', 'content_showsubs'));
+		$contentObj->hideFieldFromForm(array('content_published_date', 'content_updated_date', 'content_uid', 'meta_keywords', 'meta_description', 'short_url', 'content_makesymlink', 'content_css', 'content_visibility', 'content_weight', 'content_status', 'content_cancomment', 'content_showsubs', 'content_layout'));
 		$sform = $contentObj->getSecureForm(_MD_CONTENT_CONTENT_SUBMIT, 'addcontent');
 		$sform->assign($icmsTpl, 'content_contentform');
 		$icmsTpl->assign('content_category_path', _SUBMIT);

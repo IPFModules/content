@@ -1,11 +1,12 @@
 <{if $block.content_content}>
 <style type="text/css"><{$block.content_content.content_css}></style>
+<{if $block.content_content.content_blocks_css}><style type="text/css"><{$block.content_content.content_blocks_css}></style><{/if}>
 <div class="content_content_container">
 	<h1 class="content_content_title"><{$block.content_content.content_title}></h1>
 	<{if $block.showInfo}>	<div class="content_content_info"><{$block.content_content.content_info}></div><{/if}>
 	<div class="content_content_body"><{$block.content_content.content_body}></div>
 	<{if $block.content_content.userCanEditAndDelete}>
-	<div class="content_admin_links"><{$block.content_content.editItemLink}><{$block.content_content.deleteItemLink}></div>
+	<div class="content_admin_links"><{$block.content_content.editItemLink}><{$block.content_content.deleteItemLink}><{$block.content_content.buildItemLink}></div>
 	<{/if}>
 	<{if $block.showSubs && $block.content_content.content_hassubs}>
 	<hr style="margin:20px;" />

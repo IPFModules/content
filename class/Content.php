@@ -22,6 +22,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	public $updating_counter = false;
 	public $tags = false;
 	public $categories = false;
+	public $updatingBlocks = false;
 
 	public function __construct(&$handler) {
 		global $contentConfig;
@@ -32,7 +33,10 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		$this->quickInitVar('content_pid', XOBJ_DTYPE_INT, false);
 		$this->quickInitVar('content_uid', XOBJ_DTYPE_INT, true, false, false, 1);
 		$this->quickInitVar('content_title', XOBJ_DTYPE_TXTBOX, true);
+		$this->quickInitVar('content_layout', XOBJ_DTYPE_INT, true, false, false, CONTENT_CONTENT_LAYOUT_CLASSIC);
 		$this->quickInitVar('content_body', XOBJ_DTYPE_TXTAREA);
+		$this->quickInitVar('content_blocks_html', XOBJ_DTYPE_OTHER);
+		$this->quickInitVar('content_blocks_css', XOBJ_DTYPE_OTHER);
 		$this->quickInitVar('content_css', XOBJ_DTYPE_TXTAREA);
 		$this->quickInitVar('content_tags', XOBJ_DTYPE_TXTAREA);
 		$this->quickInitVar('content_visibility', XOBJ_DTYPE_INT, true, false, false, CONTENT_CONTENT_VISIBLE_MENUSUBS);
@@ -48,8 +52,10 @@ class mod_content_Content extends icms_ipf_seo_Object {
 
 		$this->hideFieldFromForm('content_comments');
 		$this->hideFieldFromForm('content_notification_sent');
+		$this->hideFieldFromForm(array('content_blocks_html', 'content_blocks_css'));
 		$this->hideFieldFromSingleView('content_comments');
 		$this->hideFieldFromSingleView('content_notification_sent');
+		$this->hideFieldFromSingleView(array('content_blocks_html', 'content_blocks_css'));
 
 		$this->initCommonVar('counter', false);
 		$this->initCommonVar('dohtml', false, true);
@@ -64,6 +70,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		$this->setControl('content_uid', 'user');
 		$this->setControl('content_status', array('itemHandler' => 'content', 'method' => 'getContent_statusArray', 'module' => 'content'));
 		$this->setControl('content_visibility', array('itemHandler' => 'content', 'method' => 'getContent_visibleArray', 'module' => 'content'));
+		$this->setControl('content_layout', array('itemHandler' => 'content', 'method' => 'getContent_layoutArray', 'module' => 'content'));
 		$this->setControl('content_pid', array('itemHandler' => 'content', 'method' => 'getContentList', 'module' => 'content'));
 		$this->setControl('categories', array('name' => 'categories', 'module' => 'imtagging'));
 		$this->setControl('content_makesymlink', 'yesno');
@@ -74,7 +81,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	}
 
 	public function getVar($key, $format = 's') {
-		if ($format == 's' && in_array($key, array('content_pid', 'content_uid', 'content_status', 'content_visibility', 'content_subs', 'content_tags'))) {
+		if ($format == 's' && in_array($key, array('content_pid', 'content_uid', 'content_status', 'content_visibility', 'content_layout', 'content_subs', 'content_tags'))) {
 			return call_user_func(array($this, $key));
 		}
 		return parent::getVar($key, $format);
@@ -129,6 +136,35 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		$ret = $this->getVar('content_visibility', 'e');
 		$content_visibleArray = $this->handler->getContent_visibleArray();
 		return $content_visibleArray[$ret];
+	}
+
+	/**
+	 * Retrieving the layout of the content
+	 *
+	 * @return string layout of the content
+	 */
+	function content_layout() {
+		$content_layoutArray = $this->handler->getContent_layoutArray();
+		return $content_layoutArray[$this->getVar('content_layout', 'e')] ?? '';
+	}
+
+	public function hasBlockLayout(): bool {
+		return (int) $this->getVar('content_layout', 'e') === CONTENT_CONTENT_LAYOUT_BLOCKS;
+	}
+
+	/**
+	 * The HTML of the page body: the rendered building blocks or the classic body
+	 */
+	public function getRenderedBody(): string {
+		if (!$this->hasBlockLayout()) {
+			return (string) $this->getVar('content_body');
+		}
+
+		if ($this->getVar('content_blocks_html', 'n') === '' && !$this->isNew()) {
+			$this->handler->renderBlocks($this);
+		}
+
+		return (string) $this->getVar('content_blocks_html', 'n');
 	}
 
 	function content_tags() {
@@ -199,9 +235,17 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 *	- he is an admin OR
 	 * 	  - he is the poster of this page
 	 *
+	 * Compatible with icms_ipf_Object::accessGranted(): when a permission name is given, the core
+	 * permission check for that permission is used instead.
+	 *
+	 * @param string|null $perm_name name of a permission to check instead of the view rules above
 	 * @return bool true if user can view this page, false if not
 	 */
-	function accessGranted($perm_name = 0) {
+
+	function accessGranted($perm_name = null) {
+		if (isset($perm_name)) {
+			return parent::accessGranted($perm_name);
+		}
 		$gperm_handler = icms::handler('icms_member_groupperm');
 		$groups = is_object(icms::$user) ? icms::$user->getGroups() : array(ICMS_GROUP_ANONYMOUS);
 
@@ -293,10 +337,34 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		return $ret;
 	}
 
-	function getViewItemLink($onlyUrl = false, $title = '', $target = '') {
-		$ret = '<a href="' . $this->handler->_moduleUrl . 'admin/' . $this->handler->_itemname . '.php?op=view&amp;content_id=' . $this->getVar('content_id', 'e') . '" title="' . _AM_CONTENT_VIEW . '"><img src="' . ICMS_IMAGES_SET_URL . '/actions/viewmag.png" /></a>';
 
-		return $ret;
+	function getViewItemLink($onlyUrl = false, $withimage = true, $userSide = false) {
+		$url = $this->handler->_moduleUrl . 'admin/' . $this->handler->_itemname . '.php?op=view&amp;content_id=' . $this->getVar('content_id', 'e');
+		if ($onlyUrl) return $url;
+
+		$label = $withimage ? '<img src="' . ICMS_IMAGES_SET_URL . '/actions/viewmag.png" />' : _AM_CONTENT_VIEW;
+		return '<a href="' . $url . '" title="' . _AM_CONTENT_VIEW . '">' . $label . '</a>';
+	}
+
+	/**
+	 * The page builder is on the admin side, so only the administrators of the module can open it
+	 */
+	public function userCanBuild(): bool {
+		global $content_isAdmin;
+
+		return $this->hasBlockLayout() && !empty($content_isAdmin);
+	}
+
+	public function getBuildItemLink(): string {
+		if (!$this->hasBlockLayout()) {
+			return '';
+		}
+
+		$id = $this->getVar('content_id', 'e');
+		$title = _CO_CONTENT_CONTENT_BUILD;
+		$image = ICMS_IMAGES_SET_URL . '/actions/view_choose.png';
+
+		return "<a href=\"{$this->handler->_moduleUrl}admin/builder.php?op=edit&amp;content_id={$id}\" title=\"{$title}\"><img src=\"{$image}\" alt=\"{$title}\" /></a>";
 	}
 
 	function getContentSubs($toarray) {
@@ -337,7 +405,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 * @return str content lead
 	 */
 	function getContentLead() {
-		$ret = $this->getVar('content_body');
+		$ret = $this->getRenderedBody();
 		$ret = icms_core_DataFilter::icms_substr(icms_cleanTags($ret, array()), 0, 300);
 		return $ret;
 	}
@@ -373,10 +441,15 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		$ret['content_lead'] = $this->getContentLead();
 		$ret['content_comment_info'] = $this->getCommentsInfo();
 		$ret['content_css'] = $this->getVar('content_css', 'e');
+		$ret['content_body'] = $this->getRenderedBody();
+		$ret['content_blocks_css'] = $this->hasBlockLayout() ? $this->getVar('content_blocks_css', 'n') : '';
+		$ret['content_hasblocks'] = $this->hasBlockLayout();
+		unset($ret['content_blocks_html']);
 		$ret['content_subs'] = $this->getContentSubs($this->getVar('content_id', 'e'), true);
 		$ret['content_hassubs'] = (count($ret['content_subs']) > 0) ? true : false;
 		$ret['editItemLink'] = $this->getEditItemLink(false, true, true);
 		$ret['deleteItemLink'] = $this->getDeleteItemLink(false, true, true);
+		$ret['buildItemLink'] = $this->userCanBuild() ? $this->getBuildItemLink() : '';
 		$ret['userCanEditAndDelete'] = $this->userCanEditAndDelete();
 		$ret['content_posterid'] = $this->getVar('content_uid', 'e');
 		$ret['itemLink'] = $this->getItemLink();
