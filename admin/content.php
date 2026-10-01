@@ -24,6 +24,9 @@ function editcontent($content_id = 0, $clone = false, $content_pid = false) {
 
 	if ($contentObj->hasBlockLayout()) {
 		$contentObj->hideFieldFromForm('content_body');
+		if (!$clone && !$contentObj->isNew()) {
+			$icmsAdminTpl->assign('content_content_info', '<a href="builder.php?op=edit&amp;content_id=' . (int) $contentObj->getVar('content_id', 'e') . '"><b>' . _AM_CONTENT_CONTENT_BUILD . '</b></a>');
+		}
 	}
 
 	if (!$clone && !$contentObj->isNew()) {
@@ -57,7 +60,26 @@ function editcontent($content_id = 0, $clone = false, $content_pid = false) {
 		$sform = $contentObj->getForm(_AM_CONTENT_CONTENT_CREATE, 'addcontent');
 		$sform->assign($icmsAdminTpl);
 	}
+	content_toggle_body_script();
 	$icmsAdminTpl->display('db:content_admin_content.html');
+}
+
+/**
+ * Hide the content body field while the layout is set to building blocks
+ */
+function content_toggle_body_script() {
+	global $xoTheme;
+
+	$blocks = CONTENT_CONTENT_LAYOUT_BLOCKS;
+	$xoTheme->addScript('', array('type' => 'text/javascript'), "document.addEventListener('DOMContentLoaded', function () {
+		var layout = document.querySelector('[name=\"content_layout\"]');
+		var body = document.getElementById('content_body') || document.querySelector('[name=\"content_body\"]');
+		if (!layout || !body || body.type === 'hidden') return;
+		var row = body.closest('tr') || body.closest('.form-group') || body.parentNode;
+		var toggle = function () { row.style.display = parseInt(layout.value, 10) === {$blocks} ? 'none' : ''; };
+		layout.addEventListener('change', toggle);
+		toggle();
+	});");
 }
 
 include_once "admin_header.php";
@@ -104,17 +126,20 @@ if (in_array($clean_op, $valid_op, true)) {
 		case "addcontent" :
 			$controller = new icms_ipf_Controller($content_content_handler);
 			$clean_clone_source = isset($_POST['clone_source']) ? (int) $_POST['clone_source'] : 0;
-			if (!$clean_clone_source) {
-				$controller->storeFromDefaultForm(_AM_CONTENT_CONTENT_CREATED, _AM_CONTENT_CONTENT_MODIFIED);
-				break;
-			}
+			$was_new = empty($_POST['content_id']);
 			$contentObj = $controller->storeFromDefaultForm(_AM_CONTENT_CONTENT_CREATED, _AM_CONTENT_CONTENT_MODIFIED, null);
 			if ($contentObj->isNew() || $contentObj->hasError()) {
-				redirect_header('content.php', 3, _CO_ICMS_SAVE_ERROR . $contentObj->getHtmlErrors());
+				redirect_header(icms::$urls['previouspage'], 3, _CO_ICMS_SAVE_ERROR . $contentObj->getHtmlErrors());
 			}
-			icms_getModuleHandler('blockitem', basename(dirname(__FILE__, 2)), 'content')->cloneTree($clean_clone_source, (int) $contentObj->getVar('content_id', 'e'));
-			$content_content_handler->renderBlocks($contentObj);
-			redirect_header('content.php', 2, _AM_CONTENT_CONTENT_CREATED);
+			if ($clean_clone_source) {
+				icms_getModuleHandler('blockitem', basename(dirname(__FILE__, 2)), 'content')->cloneTree($clean_clone_source, (int) $contentObj->getVar('content_id', 'e'));
+				$content_content_handler->renderBlocks($contentObj);
+			}
+			$saved_msg = $was_new ? _AM_CONTENT_CONTENT_CREATED : _AM_CONTENT_CONTENT_MODIFIED;
+			if ($contentObj->hasBlockLayout() && !$clean_clone_source) {
+				redirect_header('builder.php?op=edit&content_id=' . (int) $contentObj->getVar('content_id', 'e'), 2, $saved_msg);
+			}
+			redirect_header(icms_get_page_before_form(), 2, $saved_msg);
 			break;
 
 		case "del" :
