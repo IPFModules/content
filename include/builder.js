@@ -86,18 +86,11 @@
                 layerManager: { appendTo: '#content-builder-layers' },
                 traitManager: { appendTo: '#content-builder-traits' },
                 selectorManager: { componentFirst: true },
-                assetManager: {
-                    assets: this.config.assets,
-                    upload: this.config.urls.store,
-                    uploadName: 'files',
-                    headers: { 'X-ICMS-Token': this.token },
-                    credentials: 'same-origin',
-                    autoAdd: true,
-                },
                 plugins: [(editor) => this.registerTypes(editor)],
             });
 
             this.registerBlocks();
+            this.registerImageManager();
             this.bindEvents();
 
             this.editor.setComponents(this.config.tree.map((node) => this.blockHtml(node)).join(''));
@@ -178,7 +171,15 @@
                     defaults: {
                         ...zoneDefaults,
                         resizable: false,
-                        traits: [{ type: 'text', name: 'alt', label: this.config.labels.alt }],
+                        traits: [
+                            {
+                                type: 'button',
+                                full: true,
+                                text: this.config.labels.chooseImage,
+                                command: () => this.openImageManager(this.editor.getSelected()),
+                            },
+                            { type: 'text', name: 'alt', label: this.config.labels.alt },
+                        ],
                     },
                     init: zoneInit,
                 },
@@ -254,14 +255,6 @@
                     }
                 }, true);
             });
-
-            editor.on('asset:upload:response', (response) => {
-                if (response && response.errors && response.errors.length > 0) {
-                    this.showErrors(this.config.labels.uploadError, response.errors);
-                }
-            });
-
-            editor.on('asset:upload:error', () => this.showErrors(this.config.labels.uploadError, []));
 
             document.querySelectorAll('[data-builder-pane]').forEach((button) => {
                 button.addEventListener('click', () => this.showPane(button.dataset.builderPane));
@@ -585,7 +578,68 @@
             }
 
             this.token = token;
-            this.editor.AssetManager.getConfig().headers['X-ICMS-Token'] = token;
+        }
+
+        /**
+         * Images are chosen and uploaded in the ImpressCMS image manager, which opens in a popup. The popup hands
+         * the chosen image over through a select element, the way the image select element of ImpressCMS forms
+         * works: an <option> with the site relative URL in the <optgroup> of the category of the image, and an
+         * <img> that shows the image. The popup closes itself after a choice.
+         */
+        registerImageManager() {
+            const { target, categories } = this.config.imageManager;
+
+            this.imageSelect = document.createElement('select');
+            this.imageSelect.id = target;
+            this.imageSelect.hidden = true;
+
+            categories.forEach((id) => {
+                const group = document.createElement('optgroup');
+                group.id = `img_cat_${id}`;
+                this.imageSelect.appendChild(group);
+            });
+
+            const preview = document.createElement('img');
+            preview.id = `${target}_img`;
+            preview.hidden = true;
+            preview.alt = '';
+
+            document.body.append(this.imageSelect, preview);
+
+            // a double click on an image opens the asset manager of GrapesJS, use the ImpressCMS image manager instead
+            this.editor.Commands.add('open-assets', {
+                run: (editor, sender, options) => this.openImageManager((options && options.target) || editor.getSelected()),
+            });
+        }
+
+        openImageManager(component) {
+            if (!component || component.get('type') !== ZONE_IMAGE) {
+                return;
+            }
+
+            Array.from(this.imageSelect.options).forEach((option) => option.remove());
+
+            const features = 'width=985,height=470,resizable=yes,scrollbars=yes';
+            const popup = window.open(this.config.imageManager.url, 'icmsImageManager', features);
+
+            if (!popup) {
+                this.showErrors(this.config.labels.popupError, []);
+                return;
+            }
+
+            const timer = window.setInterval(() => {
+                if (!popup.closed) {
+                    return;
+                }
+
+                window.clearInterval(timer);
+
+                const chosen = this.imageSelect.value;
+
+                if (chosen) {
+                    component.set('src', this.config.imageManager.siteUrl + chosen);
+                }
+            }, 400);
         }
 
         /**

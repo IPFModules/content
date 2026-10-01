@@ -25,7 +25,7 @@ class mod_content_Zone extends icms_ipf_Object
         $this->quickInitVar('zone_type', XOBJ_DTYPE_INT, true, false, false, CONTENT_ZONE_TYPE_TEXT);
         $this->quickInitVar('zone_text', XOBJ_DTYPE_TXTAREA);
         $this->quickInitVar('zone_plain', XOBJ_DTYPE_TXTBOX);
-        $this->quickInitVar('zone_image', XOBJ_DTYPE_IMAGE);
+        $this->quickInitVar('zone_image', XOBJ_DTYPE_TXTBOX);
         $this->quickInitVar('zone_alt', XOBJ_DTYPE_TXTBOX);
         $this->quickInitVar('zone_url', XOBJ_DTYPE_TXTBOX);
         $this->quickInitVar('zone_target', XOBJ_DTYPE_TXTBOX, false, false, false, '_self');
@@ -34,7 +34,6 @@ class mod_content_Zone extends icms_ipf_Object
         $this->initCommonVar('dobr', false, false);
 
         $this->setControl('zone_text', 'dhtmltextarea');
-        $this->setControl('zone_image', 'image');
         $this->setControl('zone_type', ['itemHandler' => 'zone', 'method' => 'getZone_typeArray', 'module' => 'content']);
     }
 

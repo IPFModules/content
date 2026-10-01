@@ -70,4 +70,5 @@ define("_AM_CONTENT_BUILDER_ERR_ACCEPTS", "The building block '%s' can't be plac
 define("_AM_CONTENT_BUILDER_ERR_SLOT", "The building block '%s' is placed in an unknown slot.");
 define("_AM_CONTENT_BUILDER_ERR_TEXT_LENGTH", "A text in the building block '%s' is too long.");
 define("_AM_CONTENT_BUILDER_ERR_STORE", "The building block '%s' could not be stored.");
-define("_AM_CONTENT_BUILDER_ERR_UPLOAD", "The image could not be uploaded");
+define("_AM_CONTENT_BUILDER_CHOOSE_IMAGE", "Choose or upload an image");
+define("_AM_CONTENT_BUILDER_ERR_POPUP", "The image manager could not be opened. Allow pop-ups for this site and try again.");

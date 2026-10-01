@@ -4,7 +4,8 @@
  *
  * op=edit   shows the page builder
  * op=update stores the building block tree posted as JSON by the page builder
- * op=store  stores images uploaded through the asset manager of the page builder
+ *
+ * Images are chosen and uploaded in the ImpressCMS image manager, which the page builder opens in a popup
  *
  * @copyright	The ImpressCMS Project
  * @license		http://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU General Public License (GPL)
@@ -12,6 +13,9 @@
  * @author		David Janssens (fiammybe)
  * @package		content
  */
+
+/** id of the form element the ImpressCMS image manager puts the chosen image in */
+const CONTENT_BUILDER_IMAGE_TARGET = 'content-builder-image';
 
 const CONTENT_BUILDER_JSON_FLAGS = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE;
 
@@ -53,7 +57,6 @@ function editBlocks(mod_content_Content $content): void
 
     $moduleDir = basename(dirname(__FILE__, 2));
     $blocktypeHandler = icms_getModuleHandler('blocktype', $moduleDir, 'content');
-    $zoneHandler = icms_getModuleHandler('zone', $moduleDir, 'content');
     $contentId = (int) $content->getVar('content_id', 'e');
 
     icms::$module->displayAdminMenu(0, _AM_CONTENT_CONTENTS . ' > ' . _AM_CONTENT_BUILDER . ' > ' . $content->getVar('content_title'));
@@ -74,13 +77,17 @@ function editBlocks(mod_content_Content $content): void
         'contentId' => $contentId,
         'blocktypes' => $blocktypeHandler->getActiveDefinitions(),
         'tree' => mod_content_BlockSynchronizer::create()->export($contentId),
-        'assets' => $zoneHandler->getAssetList(),
+        'imageManager' => [
+            'url' => ICMS_MODULES_URL . '/system/admin/images/browser.php?target=' . CONTENT_BUILDER_IMAGE_TARGET . '&type=ibrow',
+            'target' => CONTENT_BUILDER_IMAGE_TARGET,
+            'siteUrl' => ICMS_URL,
+            'categories' => array_keys(icms::handler('icms_image_category')->getObjects(null, true)),
+        ],
         'canvasStyles' => $canvasStyles,
         'canvasCss' => $blocktypeHandler->getAllCss() . "\n" . $content->getVar('content_css', 'n'),
         'token' => icms::$security->createToken(),
         'urls' => [
             'update' => CONTENT_ADMIN_URL . "builder.php?op=update&content_id={$contentId}",
-            'store' => CONTENT_ADMIN_URL . "builder.php?op=store&content_id={$contentId}",
         ],
         'labels' => [
             'blocks' => _AM_CONTENT_BUILDER_BLOCKS,
@@ -89,7 +96,8 @@ function editBlocks(mod_content_Content $content): void
             'saved' => _AM_CONTENT_BUILDER_SAVED,
             'unsaved' => _AM_CONTENT_BUILDER_UNSAVED,
             'error' => _AM_CONTENT_BUILDER_ERROR,
-            'uploadError' => _AM_CONTENT_BUILDER_ERR_UPLOAD,
+            'chooseImage' => _AM_CONTENT_BUILDER_CHOOSE_IMAGE,
+            'popupError' => _AM_CONTENT_BUILDER_ERR_POPUP,
             'alt' => _AM_CONTENT_BUILDER_ALT,
             'href' => _AM_CONTENT_BUILDER_HREF,
             'target' => _AM_CONTENT_BUILDER_TARGET,
@@ -130,40 +138,11 @@ function updateBlocks(mod_content_Content $content): never
     ]);
 }
 
-function storeImages(): never
-{
-    requireValidToken();
-
-    $files = $_FILES['files']['name'] ?? null;
-
-    if (!is_array($files) || $files === []) {
-        respondJson(['data' => [], 'errors' => [_AM_CONTENT_BUILDER_ERR_UPLOAD]], 400);
-    }
-
-    $zoneHandler = icms_getModuleHandler('zone', basename(dirname(__FILE__, 2)), 'content');
-    $assets = [];
-    $errors = [];
-
-    foreach (array_keys($files) as $index) {
-        $result = $zoneHandler->storeUploadedImage('files', (int) $index);
-
-        if ($result['src'] === null) {
-            array_push($errors, ...$result['errors']);
-
-            continue;
-        }
-
-        $assets[] = ['src' => $result['src']];
-    }
-
-    respondJson(['data' => $assets, 'errors' => $errors], $assets === [] ? 422 : 200);
-}
-
 include_once 'admin_header.php';
 
 $contentHandler = icms_getModuleHandler('content', basename(dirname(__FILE__, 2)), 'content');
 
-$validOps = ['edit', 'update', 'store'];
+$validOps = ['edit', 'update'];
 
 $cleanOp = (string) ($_GET['op'] ?? 'edit');
 $cleanContentId = (int) ($_GET['content_id'] ?? 0);
@@ -184,10 +163,6 @@ if (!$content->hasBlockLayout()) {
 
 if ($cleanOp === 'update') {
     updateBlocks($content);
-}
-
-if ($cleanOp === 'store') {
-    storeImages();
 }
 
 icms_cp_header();

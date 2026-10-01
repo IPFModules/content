@@ -5,7 +5,7 @@ Release date : 01/10/2026
 - Building blocks can be nested in named slots and contain editable zones: rich text, plain text, image and link
 - Building block types are IPF objects managed in the admin (template, CSS, icon, allowed nested blocks), default types are seeded on install and update
 - The building blocks of a page are stored as IPF objects (building blocks and zones) and rendered on the server; the rendered HTML is cached on the page and used for display, search and teasers
-- Images uploaded in the page builder are stored in uploads/content/zone, with configurable size limits
+- Images in the page builder are chosen and uploaded in the ImpressCMS image manager
 - Cloning a page also clones its building blocks
 
 # Content 1.4.0

@@ -203,30 +203,6 @@ $modversion['config'][] = array(
 	'valuetype'		=> 'int',
 	'default'		=> 1);
 
-$modversion['config'][] = array(
-	'name'			=> 'builder_image_maxsize',
-	'title'			=> '_MI_CONTENT_BUILDER_IMAGE_MAXSIZE',
-	'description'	=> '_MI_CONTENT_BUILDER_IMAGE_MAXSIZEDSC',
-	'formtype'		=> 'textbox',
-	'valuetype'		=> 'int',
-	'default'		=> 2097152);
-
-$modversion['config'][] = array(
-	'name'			=> 'builder_image_maxwidth',
-	'title'			=> '_MI_CONTENT_BUILDER_IMAGE_MAXWIDTH',
-	'description'	=> '_MI_CONTENT_BUILDER_IMAGE_MAXWIDTHDSC',
-	'formtype'		=> 'textbox',
-	'valuetype'		=> 'int',
-	'default'		=> 2400);
-
-$modversion['config'][] = array(
-	'name'			=> 'builder_image_maxheight',
-	'title'			=> '_MI_CONTENT_BUILDER_IMAGE_MAXHEIGHT',
-	'description'	=> '_MI_CONTENT_BUILDER_IMAGE_MAXHEIGHTDSC',
-	'formtype'		=> 'textbox',
-	'valuetype'		=> 'int',
-	'default'		=> 2400);
-
 /** Notification information */
 $modversion['hasNotification'] = 1;
 

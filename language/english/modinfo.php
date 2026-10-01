@@ -17,12 +17,6 @@ define("_MI_CONTENT_MD_NAME", "Content");
 define("_MI_CONTENT_MD_DESC", "ImpressCMS Content Manager module");
 define("_MI_CONTENT_CONTENTS", "Contents");
 define("_MI_CONTENT_BLOCKTYPES", "Building blocks");
-define("_MI_CONTENT_BUILDER_IMAGE_MAXSIZE", "Page builder: maximum image size (bytes)");
-define("_MI_CONTENT_BUILDER_IMAGE_MAXSIZEDSC", "Maximum file size of the images uploaded in the page builder.");
-define("_MI_CONTENT_BUILDER_IMAGE_MAXWIDTH", "Page builder: maximum image width (pixels)");
-define("_MI_CONTENT_BUILDER_IMAGE_MAXWIDTHDSC", "Maximum width of the images uploaded in the page builder.");
-define("_MI_CONTENT_BUILDER_IMAGE_MAXHEIGHT", "Page builder: maximum image height (pixels)");
-define("_MI_CONTENT_BUILDER_IMAGE_MAXHEIGHTDSC", "Maximum height of the images uploaded in the page builder.");
 
 //Menu
 define("_MI_CONTENT_CONTENT_ADD", "Submit");

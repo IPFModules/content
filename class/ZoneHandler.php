@@ -27,15 +27,6 @@ class mod_content_ZoneHandler extends icms_ipf_Handler
         'link' => CONTENT_ZONE_TYPE_LINK,
     ];
 
-    public const IMAGE_MIMETYPES = [
-        'image/gif',
-        'image/jpeg',
-        'image/pjpeg',
-        'image/png',
-        'image/x-png',
-        'image/webp',
-    ];
-
     public const LINK_TARGETS = ['_self', '_blank'];
 
     public function __construct(&$db)
@@ -43,15 +34,6 @@ class mod_content_ZoneHandler extends icms_ipf_Handler
         parent::__construct($db, 'zone', 'zone_id', 'zone_key', 'zone_plain', 'content');
 
         icms_loadLanguageFile(basename(dirname(__FILE__, 2)), 'common');
-
-        $config = icms_getModuleConfig(basename(dirname(__FILE__, 2)));
-
-        $this->enableUpload(
-            self::IMAGE_MIMETYPES,
-            (int) ($config['builder_image_maxsize'] ?? 2097152),
-            (int) ($config['builder_image_maxwidth'] ?? 2400),
-            (int) ($config['builder_image_maxheight'] ?? 2400)
-        );
     }
 
     /** @return array<int, string> */
@@ -87,28 +69,32 @@ class mod_content_ZoneHandler extends icms_ipf_Handler
     }
 
     /**
-     * Turns an image value as received from the builder into the value stored in zone_image:
-     * a file name for images in the zone upload folder, a full URL for any other image
+     * Turns an image URL as received from the page builder into the value stored in zone_image.
+     *
+     * Images come from the ImpressCMS image manager. They are stored as a path relative to the site, like the
+     * image manager itself does, so they keep working when the site moves. Anything that isn't an image of
+     * this site is dropped. The cache buster the image manager adds to file URLs is removed, other query
+     * strings are kept since images stored in the database are served by image.php?file=
      */
     public function normalizeImageValue(string $src): string
     {
         $src = trim($src);
 
-        if ($src === '') {
+        if (str_starts_with($src, ICMS_URL . '/')) {
+            $src = substr($src, strlen(ICMS_URL));
+        }
+
+        if (!str_starts_with($src, '/') || str_starts_with($src, '//')) {
             return '';
         }
 
-        $uploadUrl = $this->getImageUrl();
-
-        if (str_starts_with($src, $uploadUrl)) {
-            return basename(substr($src, strlen($uploadUrl)));
-        }
-
-        if (!preg_match('#^https?://#i', $src)) {
+        if (str_contains($src, '..') || preg_match('/[\x00-\x1f"\'<>\\\\]/', $src)) {
             return '';
         }
 
-        return filter_var($src, FILTER_VALIDATE_URL) ? $src : '';
+        $src = preg_replace('/\?\d+$/', '', $src);
+
+        return strlen($src) <= 255 ? $src : '';
     }
 
     public function getImageSrc(string $value): string
@@ -117,80 +103,10 @@ class mod_content_ZoneHandler extends icms_ipf_Handler
             return '';
         }
 
-        if (preg_match('#^https?://#i', $value)) {
-            return $value;
+        if (str_starts_with($value, '/')) {
+            return ICMS_URL . $value;
         }
 
-        return $this->getImageUrl() . rawurlencode($value);
-    }
-
-    /**
-     * Images uploaded through the builder, newest first, in the GrapesJS asset manager format
-     *
-     * @return array<int, array{src: string}>
-     */
-    public function getAssetList(): array
-    {
-        $path = $this->getImagePath();
-        $files = glob("{$path}*.{gif,jpg,jpeg,png,webp}", GLOB_BRACE) ?: [];
-
-        usort($files, static fn (string $a, string $b): int => filemtime($b) <=> filemtime($a));
-
-        return array_map(fn (string $file): array => ['src' => $this->getImageSrc(basename($file))], $files);
-    }
-
-    /**
-     * Stores an uploaded image in the zone upload folder using the upload configuration of this handler
-     *
-     * @return array{
-     *     src: ?string,
-     *     errors: array<int, string>
-     * }
-     */
-    public function storeUploadedImage(string $fieldName, int $index): array
-    {
-        $uploader = new icms_file_MediaUploadHandler(
-            $this->getImagePath(),
-            $this->_allowedMimeTypes,
-            $this->_maxFileSize,
-            $this->_maxWidth,
-            $this->_maxHeight
-        );
-
-        if (!$uploader->fetchMedia($fieldName, $index)) {
-            return ['src' => null, 'errors' => (array) $uploader->getErrors(false)];
-        }
-
-        $uploader->setPrefix('zone');
-
-        if (!$uploader->upload()) {
-            return ['src' => null, 'errors' => (array) $uploader->getErrors(false)];
-        }
-
-        return ['src' => $this->getImageSrc($uploader->getSavedFileName()), 'errors' => []];
-    }
-
-    /**
-     * Images are shared through the asset manager, so the file is only removed when no zone uses it anymore
-     */
-    protected function afterDelete(&$obj): bool
-    {
-        $image = $obj->getVar('zone_image', 'n');
-
-        if ($image === '' || preg_match('#^https?://#i', $image)) {
-            return true;
-        }
-
-        if ($this->getCount(new icms_db_criteria_Item('zone_image', $image)) > 0) {
-            return true;
-        }
-
-        $file = $this->getImagePath() . basename($image);
-
-        if (is_file($file)) {
-            unlink($file);
-        }
-
-        return true;
+        return preg_match('#^https?://#i', $value) ? $value : '';
     }
 }
