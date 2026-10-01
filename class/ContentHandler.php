@@ -372,17 +372,20 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	}
 
 
-	public function getList($content_status = null) {
-		$criteria = new icms_db_criteria_Compo();
-
-		if (isset($content_status)) {
-			$criteria->add(new icms_db_criteria_Item('content_status', (int)$content_status));
+	/**
+	 * List of the contents, indexed by id
+	 *
+	 * Compatible with icms_ipf_Handler::getList(). For backward compatibility a content status can be
+	 * passed as the first argument instead of a criteria, to only list the contents with that status.
+	 *
+	 * @param icms_db_criteria_Element|int|null $criteria criteria or content status
+	 * @return array<int, string>
+	 */
+	public function getList($criteria = null, $limit = 0, $start = 0, $debug = false) {
+		if (is_numeric($criteria)) {
+			$criteria = new icms_db_criteria_Item('content_status', (int)$criteria);
 		}
-		$contents = & $this->getObjects($criteria, true);
-		foreach(array_keys($contents) as $i) {
-			$ret[$contents[$i]->getVar('content_id')] = $contents[$i]->getVar('content_title');
-		}
-		return $ret;
+		return parent::getList($criteria, $limit, $start, $debug);
 	}
 
 

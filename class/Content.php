@@ -235,9 +235,17 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 *	- he is an admin OR
 	 * 	  - he is the poster of this page
 	 *
+	 * Compatible with icms_ipf_Object::accessGranted(): when a permission name is given, the core
+	 * permission check for that permission is used instead.
+	 *
+	 * @param string|null $perm_name name of a permission to check instead of the view rules above
 	 * @return bool true if user can view this page, false if not
 	 */
-	function accessGranted() {
+	function accessGranted($perm_name = null) {
+		if (isset($perm_name)) {
+			return parent::accessGranted($perm_name);
+		}
+
 		$gperm_handler = icms::handler('icms_member_groupperm');
 		$groups = is_object(icms::$user) ? icms::$user->getGroups() : array(ICMS_GROUP_ANONYMOUS);
 
@@ -329,10 +337,12 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		return $ret;
 	}
 
-	function getViewItemLink() {
-		$ret = '<a href="' . $this->handler->_moduleUrl . 'admin/' . $this->handler->_itemname . '.php?op=view&amp;content_id=' . $this->getVar('content_id', 'e') . '" title="' . _AM_CONTENT_VIEW . '"><img src="' . ICMS_IMAGES_SET_URL . '/actions/viewmag.png" /></a>';
+	function getViewItemLink($onlyUrl = false, $withimage = true, $userSide = false) {
+		$url = $this->handler->_moduleUrl . 'admin/' . $this->handler->_itemname . '.php?op=view&amp;content_id=' . $this->getVar('content_id', 'e');
+		if ($onlyUrl) return $url;
 
-		return $ret;
+		$label = $withimage ? '<img src="' . ICMS_IMAGES_SET_URL . '/actions/viewmag.png" />' : _AM_CONTENT_VIEW;
+		return '<a href="' . $url . '" title="' . _AM_CONTENT_VIEW . '">' . $label . '</a>';
 	}
 
 	public function getBuildItemLink(): string {
