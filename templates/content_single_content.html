@@ -4,7 +4,7 @@
 <div class="content_content_container">
 	<h1 class="content_content_title">
 		<{$content_content.content_title}>
-		<{if $content_content.userCanEditAndDelete}><{$content_content.editItemLink}><{$content_content.deleteItemLink}><{/if}>
+		<{if $content_content.userCanEditAndDelete}><{$content_content.editItemLink}><{$content_content.deleteItemLink}><{$content_content.buildItemLink}><{/if}>
 	</h1>
 	<{if $showInfo}><div class="content_content_info"><{$content_content.content_info}></div><{/if}>
 	<div class="content_content_body"><{$content_content.content_body}></div>

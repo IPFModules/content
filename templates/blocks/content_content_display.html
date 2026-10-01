@@ -6,7 +6,7 @@
 	<{if $block.showInfo}>	<div class="content_content_info"><{$block.content_content.content_info}></div><{/if}>
 	<div class="content_content_body"><{$block.content_content.content_body}></div>
 	<{if $block.content_content.userCanEditAndDelete}>
-	<div class="content_admin_links"><{$block.content_content.editItemLink}><{$block.content_content.deleteItemLink}></div>
+	<div class="content_admin_links"><{$block.content_content.editItemLink}><{$block.content_content.deleteItemLink}><{$block.content_content.buildItemLink}></div>
 	<{/if}>
 	<{if $block.showSubs && $block.content_content.content_hassubs}>
 	<hr style="margin:20px;" />

@@ -68,6 +68,7 @@ define("_CO_CONTENT_CONTENT_CONTENT_LAYOUT", "Layout");
 define("_CO_CONTENT_CONTENT_CONTENT_LAYOUT_DSC", "Choose <b>Building blocks</b> to compose this page with the visual page builder instead of the content body. Use the builder icon in the list of contents to edit the building blocks.");
 define("_CO_CONTENT_CONTENT_LAYOUT_CLASSIC", "Content body");
 define("_CO_CONTENT_CONTENT_LAYOUT_BLOCKS", "Building blocks");
+define("_CO_CONTENT_CONTENT_BUILD", "Edit the building blocks of this page");
 
 // blocktype
 define("_CO_CONTENT_BLOCKTYPE_BLOCKTYPE_TITLE", "Title");

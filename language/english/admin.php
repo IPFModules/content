@@ -30,7 +30,6 @@ define("_AM_CONTENT_CONTENT_CREATED", "The content has been successfully created
 define("_AM_CONTENT_CONTENT_CLONE", "Clone this content");
 define("_AM_CONTENT_PREVIEW", "Preview Content");
 define("_AM_CONTENT_VIEW", "View Full Content Info");
-define("_AM_CONTENT_CONTENT_BUILD", "Edit the building blocks of this page");
 
 // Building block types
 define("_AM_CONTENT_BLOCKTYPES", "Building blocks");

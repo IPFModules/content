@@ -25,7 +25,7 @@ function editcontent($content_id = 0, $clone = false, $content_pid = false) {
 	if ($contentObj->hasBlockLayout()) {
 		$contentObj->hideFieldFromForm('content_body');
 		if (!$clone && !$contentObj->isNew()) {
-			$icmsAdminTpl->assign('content_content_info', '<a href="builder.php?op=edit&amp;content_id=' . (int) $contentObj->getVar('content_id', 'e') . '"><b>' . _AM_CONTENT_CONTENT_BUILD . '</b></a>');
+			$icmsAdminTpl->assign('content_content_info', '<a href="builder.php?op=edit&amp;content_id=' . (int) $contentObj->getVar('content_id', 'e') . '"><b>' . _CO_CONTENT_CONTENT_BUILD . '</b></a>');
 		}
 	}
 

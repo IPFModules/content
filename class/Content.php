@@ -345,13 +345,22 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		return '<a href="' . $url . '" title="' . _AM_CONTENT_VIEW . '">' . $label . '</a>';
 	}
 
+	/**
+	 * The page builder is on the admin side, so only the administrators of the module can open it
+	 */
+	public function userCanBuild(): bool {
+		global $content_isAdmin;
+
+		return $this->hasBlockLayout() && !empty($content_isAdmin);
+	}
+
 	public function getBuildItemLink(): string {
 		if (!$this->hasBlockLayout()) {
 			return '';
 		}
 
 		$id = $this->getVar('content_id', 'e');
-		$title = _AM_CONTENT_CONTENT_BUILD;
+		$title = _CO_CONTENT_CONTENT_BUILD;
 		$image = ICMS_IMAGES_SET_URL . '/actions/view_choose.png';
 
 		return "<a href=\"{$this->handler->_moduleUrl}admin/builder.php?op=edit&amp;content_id={$id}\" title=\"{$title}\"><img src=\"{$image}\" alt=\"{$title}\" /></a>";
@@ -439,6 +448,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		$ret['content_hassubs'] = (count($ret['content_subs']) > 0) ? true : false;
 		$ret['editItemLink'] = $this->getEditItemLink(false, true, true);
 		$ret['deleteItemLink'] = $this->getDeleteItemLink(false, true, true);
+		$ret['buildItemLink'] = $this->userCanBuild() ? $this->getBuildItemLink() : '';
 		$ret['userCanEditAndDelete'] = $this->userCanEditAndDelete();
 		$ret['content_posterid'] = $this->getVar('content_uid', 'e');
 		$ret['itemLink'] = $this->getItemLink();
