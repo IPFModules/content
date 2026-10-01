@@ -1,0 +1,54 @@
+name: Build & Publish ImpressCMS Module
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write   # <-- VERPLICHT voor release uploads
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl, json
+          coverage: none
+
+      - name: Determine module name from repository
+        run: echo "MODULE_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+
+      - name: Extract version from release tag
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Install Composer dependencies (no dev)
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Prepare build directory
+        run: |
+          rm -rf build
+          mkdir -p build/$MODULE_NAME
+          cp -R src/* build/$MODULE_NAME/
+          cp -R vendor build/$MODULE_NAME/vendor
+          echo "${VERSION}" > build/$MODULE_NAME/VERSION
+
+      - name: Create ZIP package
+        run: |
+          cd build
+          zip -r "${MODULE_NAME}-${VERSION}.zip" "${MODULE_NAME}"
+
+      - name: Upload ZIP to GitHub Release (GH CLI)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} build/${MODULE_NAME}-${VERSION}.zip --clobber
