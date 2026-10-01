@@ -1,0 +1,5 @@
+.cb-columns { display: grid; gap: 1.5rem; grid-template-columns: 1fr; margin: 1rem 0; }
+.cb-columns__column { min-height: 3rem; min-width: 0; }
+@media (min-width: 768px) {
+    .cb-columns--2 { grid-template-columns: repeat(2, 1fr); }
+}

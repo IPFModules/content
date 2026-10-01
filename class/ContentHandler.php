@@ -23,6 +23,8 @@ define('CONTENT_CONTENT_VISIBLE_MENUOLNY', 1);
 define('CONTENT_CONTENT_VISIBLE_SUBSONLY', 2);
 define('CONTENT_CONTENT_VISIBLE_MENUSUBS', 3);
 define('CONTENT_CONTENT_VISIBLE_DONTSHOW', 4);
+define('CONTENT_CONTENT_LAYOUT_CLASSIC', 1);
+define('CONTENT_CONTENT_LAYOUT_BLOCKS', 2);
 
 /**
  * ImpressCMS Core Content Object Handler Class
@@ -86,6 +88,53 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 			$this->_content_visibleArray[CONTENT_CONTENT_VISIBLE_DONTSHOW] = _CO_CONTENT_CONTENT_VISIBLE_DONTSHOW;
 		}
 		return $this->_content_visibleArray;
+	}
+
+	/**
+	 * Retreive the possible layouts of a content object
+	 *
+	 * @return array<int, string>
+	 */
+	public function getContent_layoutArray(): array {
+		return array(
+			CONTENT_CONTENT_LAYOUT_CLASSIC => _CO_CONTENT_CONTENT_LAYOUT_CLASSIC,
+			CONTENT_CONTENT_LAYOUT_BLOCKS => _CO_CONTENT_CONTENT_LAYOUT_BLOCKS,
+		);
+	}
+
+	/**
+	 * Render the building blocks of a page and store the result as the page's render cache
+	 */
+	public function renderBlocks(mod_content_Content $content): void {
+		$this->refreshBlocksCache($content);
+
+		$content->updatingBlocks = true;
+		$this->insert($content, true);
+		$content->updatingBlocks = false;
+	}
+
+	/**
+	 * The render cache is only ever written from the stored building blocks, never from posted form values
+	 */
+	private function refreshBlocksCache(mod_content_Content $content): void {
+		$rendered = array('html' => '', 'css' => '');
+
+		if ($content->hasBlockLayout() && !$content->isNew()) {
+			$rendered = mod_content_BlockRenderer::create()->renderContent((int) $content->getVar('content_id', 'e'));
+		}
+
+		$content->setVar('content_blocks_html', $rendered['html']);
+		$content->setVar('content_blocks_css', $rendered['css']);
+	}
+
+	public function renderBlocksById(int $content_id): void {
+		$content = $this->get($content_id);
+
+		if ($content->isNew()) {
+			return;
+		}
+
+		$this->renderBlocks($content);
 	}
 
 
@@ -239,6 +288,7 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 				$criteriaKeyword = new icms_db_criteria_Compo();
 				$criteriaKeyword->add(new icms_db_criteria_Item('content_title', '%' . $queryarray[$i] . '%', 'LIKE'), 'OR');
 				$criteriaKeyword->add(new icms_db_criteria_Item('content_body', '%' . $queryarray[$i] . '%', 'LIKE'), 'OR');
+				$criteriaKeyword->add(new icms_db_criteria_Item('content_blocks_html', '%' . $queryarray[$i] . '%', 'LIKE'), 'OR');
 				$criteriaKeywords->add($criteriaKeyword, $andor);
 				unset($criteriaKeyword);
 			}
@@ -314,7 +364,7 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 		foreach(array_keys($contents) as $i) {
 			if ($contents[$i]->accessGranted()){
 				$ret[$i] = $contents[$i]->toArray();
-				$ret[$i]['content_body'] = icms_core_DataFilter::icms_substr(icms_cleanTags($contents[$i]->getVar('content_body','n'),array()),0,300);
+				$ret[$i]['content_body'] = icms_core_DataFilter::icms_substr(icms_cleanTags($contents[$i]->getRenderedBody(),array()),0,300);
 				$ret[$i]['content_url'] = $contents[$i]->getItemLink();
 			}
 		}
@@ -457,10 +507,12 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * @return true
 	 */
 	protected function beforeSave(&$obj) {
-		if ($obj->updating_counter)
+		if ($obj->updating_counter || $obj->updatingBlocks)
 		return true;
 
 		$obj->setVar('dobr', $obj->need_do_br ());
+
+		$this->refreshBlocksCache($obj);
 
 		//Prevent that the page is defined as parent page of yourself.
 		if ($obj->getVar('content_pid','e') == $obj->getVar('content_id','e')){
@@ -479,7 +531,7 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * @return true
 	 */
 	protected function afterSave(&$obj) {
-		if ($obj->updating_counter)
+		if ($obj->updating_counter || $obj->updatingBlocks)
 		return true;
 
 		if (!$obj->getVar('content_notification_sent') && $obj->getVar('content_status', 'e') == CONTENT_CONTENT_STATUS_PUBLISHED) {
@@ -528,6 +580,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 		$criteria = new icms_db_criteria_Compo(new icms_db_criteria_Item('page_url', $url));
 		$criteria->add(new icms_db_criteria_Item('page_moduleid', $module->getVar('mid')));
 		$symlink_handler->deleteAll($criteria);
+
+		icms_getModuleHandler('blockitem', basename(dirname(__FILE__, 2)), 'content')->deleteForContent((int) $obj->getVar('content_id', 'e'));
 
 		return true;
 	}

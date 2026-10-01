@@ -1,0 +1,140 @@
+/* Page builder of the content module */
+
+.content-builder {
+    border: 1px solid #d1d5db;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 160px);
+    min-height: 600px;
+}
+
+.content-builder__toolbar {
+    align-items: center;
+    background: #f3f4f6;
+    border-bottom: 1px solid #d1d5db;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    justify-content: space-between;
+    padding: .5rem .75rem;
+}
+
+.content-builder__title {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.content-builder__actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+}
+
+.content-builder__button {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    color: #111827;
+    cursor: pointer;
+    display: inline-block;
+    font-size: .875rem;
+    line-height: 1.5;
+    padding: .25rem .6rem;
+    text-decoration: none;
+}
+
+.content-builder__button:hover {
+    background: #e5e7eb;
+}
+
+.content-builder__button--primary {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+}
+
+.content-builder__button--primary:hover {
+    background: #1d4ed8;
+}
+
+.content-builder__status {
+    font-size: .8rem;
+    margin: 0 .5rem;
+}
+
+.content-builder__status.is-dirty {
+    color: #b45309;
+}
+
+.content-builder__status.is-saved {
+    color: #15803d;
+}
+
+.content-builder__status.is-error {
+    color: #b91c1c;
+}
+
+.content-builder__workspace {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+.content-builder__canvas {
+    flex: 1;
+    min-width: 0;
+}
+
+.content-builder__sidebar {
+    border-left: 1px solid #d1d5db;
+    display: flex;
+    flex: 0 0 280px;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.content-builder__tabs {
+    border-bottom: 1px solid rgba(0, 0, 0, .3);
+    display: flex;
+}
+
+.content-builder__tab {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: inherit;
+    cursor: pointer;
+    flex: 1;
+    font-size: .8rem;
+    min-width: 0;
+    overflow: hidden;
+    padding: .5rem .25rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.content-builder__tab.is-active {
+    border-bottom-color: #60a5fa;
+    font-weight: bold;
+}
+
+.content-builder__pane {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.content-builder__block-icon {
+    max-height: 40px;
+    max-width: 100%;
+}
+
+.content-builder__errors {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.content-blocktype-preview {
+    border: 1px dashed #d1d5db;
+    padding: 1rem;
+}

@@ -14,6 +14,10 @@ $adminmenu[] = array(
 	'title'	=> _MI_CONTENT_CONTENTS,
 	'link'	=> 'admin/content.php');
 
+$adminmenu[] = array(
+	'title'	=> _MI_CONTENT_BLOCKTYPES,
+	'link'	=> 'admin/blocktype.php');
+
 $module = icms::handler("icms_module")->getByDirname(basename(dirname(__FILE__, 2)));
 $headermenu[] = array(
 	'title'	=> _PREFERENCES,

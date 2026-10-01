@@ -22,6 +22,10 @@ function editcontent($content_id = 0, $clone = false, $content_pid = false) {
 
 	$contentObj = $content_content_handler->get($content_id);
 
+	if ($contentObj->hasBlockLayout()) {
+		$contentObj->hideFieldFromForm('content_body');
+	}
+
 	if (!$clone && !$contentObj->isNew()) {
 		$contentObj->hideFieldFromForm(array('content_published_date', 'content_updated_date'));
 		if($contentObj->getVar("content_makesymlink") === 1) {
@@ -41,6 +45,7 @@ function editcontent($content_id = 0, $clone = false, $content_pid = false) {
 		$contentObj->setNew();
 		icms::$module->displayAdminMenu(0, _AM_CONTENT_CONTENTS . " > " . _AM_CONTENT_CONTENT_CLONE);
 		$sform = $contentObj->getForm(_AM_CONTENT_CONTENT_CLONE, 'addcontent');
+		$sform->addElement(new icms_form_elements_Hidden('clone_source', $content_id));
 		$sform->assign($icmsAdminTpl);
 	} else {
 		$contentObj->hideFieldFromForm(array('content_published_date', 'content_updated_date'));
@@ -98,7 +103,18 @@ if (in_array($clean_op, $valid_op, true)) {
 
 		case "addcontent" :
 			$controller = new icms_ipf_Controller($content_content_handler);
-			$controller->storeFromDefaultForm(_AM_CONTENT_CONTENT_CREATED, _AM_CONTENT_CONTENT_MODIFIED);
+			$clean_clone_source = isset($_POST['clone_source']) ? (int) $_POST['clone_source'] : 0;
+			if (!$clean_clone_source) {
+				$controller->storeFromDefaultForm(_AM_CONTENT_CONTENT_CREATED, _AM_CONTENT_CONTENT_MODIFIED);
+				break;
+			}
+			$contentObj = $controller->storeFromDefaultForm(_AM_CONTENT_CONTENT_CREATED, _AM_CONTENT_CONTENT_MODIFIED, null);
+			if ($contentObj->isNew() || $contentObj->hasError()) {
+				redirect_header('content.php', 3, _CO_ICMS_SAVE_ERROR . $contentObj->getHtmlErrors());
+			}
+			icms_getModuleHandler('blockitem', basename(dirname(__FILE__, 2)), 'content')->cloneTree($clean_clone_source, (int) $contentObj->getVar('content_id', 'e'));
+			$content_content_handler->renderBlocks($contentObj);
+			redirect_header('content.php', 2, _AM_CONTENT_CONTENT_CREATED);
 			break;
 
 		case "del" :
@@ -173,6 +189,7 @@ if (in_array($clean_op, $valid_op, true)) {
 			$objectTable->addActionButton('changedField', false, _SUBMIT);
 			$objectTable->addCustomAction('getViewItemLink');
 			$objectTable->addCustomAction('getCloneItemLink');
+			$objectTable->addCustomAction('getBuildItemLink');
 
 			$objectTable->addIntroButton('addcontent', 'content.php?op=mod'.($clean_content_pid ? '&amp;content_pid=' . $clean_content_pid : ''), _AM_CONTENT_CONTENT_CREATE);
 
@@ -182,6 +199,7 @@ if (in_array($clean_op, $valid_op, true)) {
 			$objectTable->addFilter('content_uid', 'getPostersArray');
 			$objectTable->addFilter('content_pid', 'getContentList');
 			$objectTable->addFilter('content_visibility', 'getContent_visibleArray');
+			$objectTable->addFilter('content_layout', 'getContent_layoutArray');
 			$objectTable->addFilter('content_tags', 'getContent_tagsArray');
 
 			$objectTable->addHeader('<p style="margin-bottom: 10px;">' . $content_content_handler->getBreadcrumbForPid($clean_content_pid) . '</p>');

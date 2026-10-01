@@ -1,0 +1,4 @@
+.cb-card { border: 1px solid rgba(0, 0, 0, .125); border-radius: .25rem; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.cb-card__image { display: block; height: auto; width: 100%; }
+.cb-card__body { padding: 1rem; }
+.cb-card__title { margin-top: 0; }

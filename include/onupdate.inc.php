@@ -23,7 +23,7 @@
 defined("ICMS_ROOT_PATH") or die("ICMS root path not defined");
 
 // this needs to be the latest db version
-define ('CONTENT_DB_VERSION', 1);
+define ('CONTENT_DB_VERSION', 2);
 
 /**
  * it is possible to define custom functions which will be call when the module is updating at the
@@ -253,6 +253,8 @@ function icms_module_update_content($module) {
 	}
 	unset($table);
 
+	content_install_building_blocks();
+
 	$feedback = ob_get_clean();
 	if (method_exists($module, "setMessage")) {
 		$module->messages = $module->setMessage($feedback);
@@ -264,5 +266,47 @@ function icms_module_update_content($module) {
 }
 
 function icms_module_install_content($module) {
+	content_install_building_blocks();
+
 	return true;
+}
+
+/**
+ * Adds the indexes the automatic table creation of IPF doesn't create and seeds the default building block types.
+ * The core creates the IPF tables before calling the module's install or update function
+ */
+function content_install_building_blocks(): void {
+	$indexes = [
+		'blockitem' => ['blockitem_content_id' => 'INDEX', 'blockitem_pid' => 'INDEX'],
+		'zone' => ['zone_blockitem_id' => 'INDEX'],
+		'blocktype' => ['blocktype_key' => 'UNIQUE'],
+	];
+
+	foreach ($indexes as $item => $columns) {
+		$table = icms::$xoopsDB->prefix("content_{$item}");
+
+		foreach ($columns as $column => $type) {
+			$result = icms::$xoopsDB->query("SHOW INDEX FROM `{$table}` WHERE Key_name = '{$column}'");
+
+			if (!$result) {
+				continue;
+			}
+
+			if (icms::$xoopsDB->getRowsNum($result) > 0) {
+				continue;
+			}
+
+			icms::$xoopsDB->queryF("ALTER TABLE `{$table}` ADD {$type} `{$column}` (`{$column}`)");
+			echo "<code>Index <b>{$column}</b> added to <b>{$table}</b>.</code><br />";
+		}
+	}
+
+	$folder = dirname(__FILE__) . '/blocktypes';
+	$definitions = include $folder . '/blocktypes.php';
+
+	$created = icms_getModuleHandler('blocktype', basename(dirname(__FILE__, 2)), 'content')->seed($definitions, $folder);
+
+	foreach ($created as $key) {
+		echo "<code>Building block type <b>{$key}</b> added.</code><br />";
+	}
 }
