@@ -241,11 +241,11 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 * @param string|null $perm_name name of a permission to check instead of the view rules above
 	 * @return bool true if user can view this page, false if not
 	 */
+
 	function accessGranted($perm_name = null) {
 		if (isset($perm_name)) {
 			return parent::accessGranted($perm_name);
 		}
-
 		$gperm_handler = icms::handler('icms_member_groupperm');
 		$groups = is_object(icms::$user) ? icms::$user->getGroups() : array(ICMS_GROUP_ANONYMOUS);
 
@@ -336,6 +336,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 
 		return $ret;
 	}
+
 
 	function getViewItemLink($onlyUrl = false, $withimage = true, $userSide = false) {
 		$url = $this->handler->_moduleUrl . 'admin/' . $this->handler->_itemname . '.php?op=view&amp;content_id=' . $this->getVar('content_id', 'e');
