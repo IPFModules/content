@@ -40,12 +40,20 @@ define("_MI_CONTENT_SHOWRELATEDS", "Show Related Pages");
 define("_MI_CONTENT_SHOWRELATEDSDSC", "Set to YES to show the related pages after the page content.");
 define("_MI_CONTENT_SHOWINFO", "Show author and published info");
 define("_MI_CONTENT_SHOWINFODSC", "Set to YES to show in the page informations about the author and publish of the page.");
+define("_MI_CONTENT_EDIT_USERSIDE", "Edit links on user side");
+define("_MI_CONTENT_EDIT_USERSIDEDSC", "Set to YES to point the edit links of a page to the user side instead of the admin side.");
+define("_MI_CONTENT_EDITIMAGE", "Edit links as image");
+define("_MI_CONTENT_EDITIMAGEDSC", "Set to YES to show the edit links of a page as an icon.");
+define("_MI_CONTENT_EDITURL_ONLY", "Edit links as URL only");
+define("_MI_CONTENT_EDITURL_ONLYDSC", "Set to YES to only output the URL of the edit links of a page.");
 
 // Blocks
 define("_MI_CONTENT_CONTENTDISPLAY", "Content");
 define("_MI_CONTENT_CONTENTDISPLAYDSC", "Display the desired content page with some defined configurations.");
 define("_MI_CONTENT_CONTENTMENU", "Content Menu");
 define("_MI_CONTENT_CONTENTMENUDSC", "Show a block with a menu of content pages.");
+define("_MI_CONTENT_CONTENTSPOTLIGHT", "Content Spotlight");
+define("_MI_CONTENT_CONTENTSPOTLIGHTDSC", "Display a content page preceded by a spotlight text.");
 
 // Notifications
 define("_MI_CONTENT_GLOBAL_NOTIFY", "All contents");
