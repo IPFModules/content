@@ -66,6 +66,9 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		$this->setControl('content_visibility', array('itemHandler' => 'content', 'method' => 'getContent_visibleArray', 'module' => 'content'));
 		$this->setControl('content_pid', array('itemHandler' => 'content', 'method' => 'getContentList', 'module' => 'content'));
 		$this->setControl('categories', array('name' => 'categories', 'module' => 'imtagging'));
+        $this->setControl('content_background_image', 'image');
+        $this->setControl('content_header_image', 'image');
+        $this->setControl('content_social_image', 'image');
 		$this->setControl('content_makesymlink', 'yesno');
 		$this->setControl('content_showsubs', 'yesno');
 		$this->setControl('content_cancomment', 'yesno');
@@ -83,9 +86,10 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	/**
 	 * Retrieving the title of the parent page, linked to that
 	 *
-	 * @return str title of the parent content
+	 * @return string title of the parent content
 	 */
-	function content_pid() {
+	public function content_pid(): string
+    {
 		static $content_pidArray;
 		if (!is_array($content_pidArray)) {
 			$content_pidArray = $this->handler->getContentList();
@@ -102,9 +106,10 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	/**
 	 * Retrieving the name of the author of the content, linked to his profile
 	 *
-	 * @return str name of the author of the content
+	 * @return string name of the author of the content
 	 */
-	function content_uid() {
+	public function content_uid(): string
+    {
 		return icms_member_user_Handler::getUserLink($this->getVar('content_uid', 'e'));
 	}
 
@@ -114,7 +119,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 * @param str status of the content
 	 * @return mixed $content_statusArray[$ret] status of the content
 	 */
-	function content_status() {
+	public function content_status() {
 		$ret = $this->getVar('content_status', 'e');
 		$content_statusArray = $this->handler->getContent_statusArray();
 		return $content_statusArray[$ret];
@@ -125,24 +130,31 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 *
 	 * @return mixed $content_visibleArray[$ret] visibility of the content
 	 */
-	function content_visibility() {
+	public function content_visibility() {
 		$ret = $this->getVar('content_visibility', 'e');
 		$content_visibleArray = $this->handler->getContent_visibleArray();
 		return $content_visibleArray[$ret];
 	}
 
-	function content_tags() {
-		if ($this->getVar('content_tags', 'e') != '') {
-			$tags = explode (',', $this->getVar('content_tags', 'e'));
-			foreach ($tags as $k => $tag) {
-				$tag = trim ($tag);
-				$tag = ' <a href="' . $this->handler->_moduleUrl . 'index.php?tag=' . $tag . '">' . $tag . '</a>';
-				$tags[$k] = $tag;
-			}
-			return implode(',', $tags);
-		} else {
-			return false;
+	/**
+	 * Get formatted content tags with links
+	 *
+	 * @return string Comma-separated linked tags, or empty string if no tags
+	 */
+	public function content_tags(): string
+	{
+		$tagsStr = $this->getVar('content_tags', 'e');
+		if ($tagsStr == '') {
+			return '';
 		}
+
+		$tags = explode(',', $tagsStr);
+		foreach ($tags as $k => $tag) {
+			$tag = trim($tag);
+			$tag = ' <a href="' . $this->handler->_moduleUrl . 'index.php?tag=' . $tag . '">' . $tag . '</a>';
+			$tags[$k] = $tag;
+		}
+		return implode(',', $tags);
 	}
 
 	/**
@@ -150,7 +162,7 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 *
 	 * @return int number of sub-pages
 	 */
-	function content_subs() {
+	public function content_subs() {
 		$ret = $this->handler->getContentsSubsCount($this->getVar('content_id', 'e'));
 
 		if ($ret > 0) {
@@ -159,11 +171,29 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		return $ret;
 	}
 
-	function getReads() {
+	/**
+	 * Get the number of reads/views for this content
+	 *
+	 * @return int Number of reads
+	 */
+	public function getReads(): int
+	{
 		return $this->getVar('counter');
 	}
 
-	function setReads($qtde = null) {
+	/**
+	 * Set/increment the number of reads for this content
+	 *
+	 * @param int|null $qtde Quantity to add (null to increment by 1)
+	 * @return void
+	 * @throws InvalidArgumentException if qtde is not a valid integer
+	 */
+	public function setReads($qtde = null): void
+	{
+		if ($qtde !== null && (!is_int($qtde) || $qtde < 0)) {
+			throw new InvalidArgumentException('Quantity must be a non-negative integer or null');
+		}
+
 		$t = $this->getVar('counter');
 		if (isset($qtde)) {
 			$t += $qtde;
@@ -178,7 +208,8 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 *
 	 * @return bool true | false
 	 */
-	function need_do_br() {
+	public function need_do_br(): bool
+    {
 		global $icmsConfig;
 
 		$content_module = icms_getModuleInfo('content');
@@ -199,9 +230,11 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 *	- he is an admin OR
 	 * 	  - he is the poster of this page
 	 *
-	 * @return bool true if user can view this page, false if not
+     * @param string $perm_name Permission name to check (optional, for future use)
+     * @return bool true if user can view this page, false if not
 	 */
-	function accessGranted($perm_name = 0) {
+	public function accessGranted($perm_name = ''): bool
+    {
 		$gperm_handler = icms::handler('icms_member_groupperm');
 		$groups = is_object(icms::$user) ? icms::$user->getGroups() : array(ICMS_GROUP_ANONYMOUS);
 
@@ -230,9 +263,10 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 * Get the poster
 	 *
 	 * @param bool $link with link or not
-	 * @return str poster name linked on his module poster page, or simply poster name
+	 * @return string poster name linked on his module poster page, or simply poster name
 	 */
-	function getPoster($link = false) {
+	public function getPoster(bool $link = false): string
+    {
 		if (!$this->_poster_info) {
 			$poster_uid = $this->getVar('content_uid', 'e');
 			$userObj = icms::handler('icms_member')->getuser($poster_uid);
@@ -263,54 +297,72 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 *
 	 * @return str content info
 	 */
-	function getContentInfo() {
+	public function getContentInfo(): string
+    {
 		$ret = sprintf(_CO_CONTENT_CONTENT_INFO, $this->getPoster(true), $this->getVar('content_published_date'), $this->getVar('counter'));
 		return $ret;
 	}
 
 	/**
-	 * Check to see wether the current user can edit or delete this page
+	 * Check to see whether the current user can edit or delete this page
 	 *
 	 * @return bool true if he can, false if not
 	 */
-	function userCanEditAndDelete() {
+	public function userCanEditAndDelete(): bool
+    {
 		global $content_isAdmin;
 		if (!is_object(icms::$user)) return false;
 		if ($content_isAdmin) return true;
 		return $this->getVar('content_uid', 'e') == icms::$user->getVar("uid");
 	}
 
-	function getPreviewItemLink() {
-		$seo = $this->handler->makelink($this);
+	/**
+	 * Get preview item link
+	 *
+	 * @return string HTML link to preview the content
+	 * @throws InvalidArgumentException if content object is invalid
+	 */
+	public function getPreviewItemLink(): string
+    {
+		try {
+			$seo = $this->handler->makelink($this);
+		} catch (InvalidArgumentException $e) {
+			throw new InvalidArgumentException('Cannot create preview link: ' . $e->getMessage());
+		}
+
 		$ret = '<a href="' . $this->handler->_moduleUrl . $this->handler->_itemname . '.php?content_id=' . $this->getVar('content_id', 'e') . '&amp;page=' . $seo . '" title="' . _AM_CONTENT_PREVIEW . '" target="_blank">' . $this->getVar('content_title') . '</a>';
 
 		return $ret;
 	}
 
-	function getCloneItemLink() {
+	public function getCloneItemLink(): string
+    {
 		$ret = '<a href="' . $this->handler->_moduleUrl . 'admin/' . $this->handler->_itemname . '.php?op=clone&amp;content_id=' . $this->getVar('content_id', 'e') . '" title="' . _AM_CONTENT_CONTENT_CLONE . '"><img src="' . ICMS_IMAGES_SET_URL . '/actions/editcopy.png" /></a>';
 
 		return $ret;
 	}
 
-	function getViewItemLink($onlyUrl = false, $title = '', $target = '') {
+	public function getViewItemLink($onlyUrl = false, $withimage = true, $userSide = false): string
+    {
 		$ret = '<a href="' . $this->handler->_moduleUrl . 'admin/' . $this->handler->_itemname . '.php?op=view&amp;content_id=' . $this->getVar('content_id', 'e') . '" title="' . _AM_CONTENT_VIEW . '"><img src="' . ICMS_IMAGES_SET_URL . '/actions/viewmag.png" /></a>';
 
 		return $ret;
 	}
 
-	function getContentSubs($toarray) {
+	public function getContentSubs($toarray) {
 		return $this->handler->getContentSubs($this->getVar('content_id', 'e'), $toarray);
 	}
 
-	function getContent_visibleControl() {
+	public function getContent_visibleControl(): string
+    {
 		$control = new icms_form_elements_Select('', 'content_visibility[]', $this->getVar('content_visibility', 'e'));
 		$content_visibleArray = $this->handler->getContent_visibleArray();
 		$control->addOptionArray($content_visibleArray);
 		return $control->render();
 	}
 
-	function getContent_statusControl() {
+    public function getContent_statusControl(): string
+    {
 		$control = new icms_form_elements_Select('', 'content_status[]', $this->getVar('content_status', 'e'));
 		$content_statusArray = $this->handler->getContent_statusArray();
 		$control->addOptionArray($content_statusArray);
@@ -320,9 +372,10 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	/**
 	 * Retrieve content comment info (number of comments)
 	 *
-	 * @return str content comment info
+	 * @return string content comment info
 	 */
-	function getCommentsInfo() {
+	public function getCommentsInfo(): string
+    {
 		$content_comments = $this->getVar('content_comments');
 		if ($content_comments) {
 			return '<a href="' . $this->getItemLink(true) . '#comments_container">' . sprintf(_CO_CONTENT_CONTENT_COMMENTS_INFO, $content_comments) . '</a>';
@@ -334,9 +387,10 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	/**
 	 * Retrieve content lead, which is everything before the [more] tag
 	 *
-	 * @return str content lead
+	 * @return string content lead
 	 */
-	function getContentLead() {
+	public function getContentLead(): string
+    {
 		$ret = $this->getVar('content_body');
 		$ret = icms_core_DataFilter::icms_substr(icms_cleanTags($ret, array()), 0, 300);
 		return $ret;
@@ -347,15 +401,29 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 *
 	 * @return VOID
 	 */
-	function sendNotifContentPublished() {
+	public function sendNotifContentPublished(): void
+    {
 		$module = icms::handler('icms_module')->getByDirname(basename(dirname(__FILE__, 2)));
 		$tags ['CONTENT_TITLE'] = $this->getVar('content_title');
 		$tags ['CONTENT_URL'] = $this->getItemLink(true);
 		icms::handler('icms_data_notification')->triggerEvent('global', 0, 'content_published', $tags, array(), $module->getVar('mid'));
 	}
 
-	function getItemLink($onlyUrl = false) {
-		$seo = $this->handler->makelink($this);
+	/**
+	 * Get item link
+	 *
+	 * @param bool $onlyUrl Return only URL without HTML link tag
+	 * @return string HTML link to the content or URL only
+	 * @throws InvalidArgumentException if content object is invalid
+	 */
+	public function getItemLink($onlyUrl = false): string
+    {
+		try {
+			$seo = $this->handler->makelink($this);
+		} catch (InvalidArgumentException $e) {
+			throw new InvalidArgumentException('Cannot create item link: ' . $e->getMessage());
+		}
+
 		$url = $this->handler->_moduleUrl . $this->handler->_itemname . '.php?content_id=' . $this->getVar('content_id') . '&amp;page=' . $seo;
 		if ($onlyUrl) return $url;
 		return '<a href="' . $url . '" title="">' . $this->getVar('content_title') . '</a>';
@@ -366,7 +434,9 @@ class mod_content_Content extends icms_ipf_seo_Object {
 	 *
 	 * @return array of article info
 	 */
-	function toArray() {
+	public function toArray(): array
+    {
+        global $icmsConfig;
 		$ret = parent::toArray();
 
 		$ret['content_info'] = $this->getContentInfo();
@@ -375,8 +445,8 @@ class mod_content_Content extends icms_ipf_seo_Object {
 		$ret['content_css'] = $this->getVar('content_css', 'e');
 		$ret['content_subs'] = $this->getContentSubs($this->getVar('content_id', 'e'), true);
 		$ret['content_hassubs'] = (count($ret['content_subs']) > 0) ? true : false;
-		$ret['editItemLink'] = $this->getEditItemLink(false, true, true);
-		$ret['deleteItemLink'] = $this->getDeleteItemLink(false, true, true);
+		$ret['editItemLink'] = $this->getEditItemLink($icmsConfig['show_content_edit_onlyurl'], $icmsConfig['show_content_edit_image'], $icmsConfig['show_content_edit_userside']);
+		$ret['deleteItemLink'] = $this->getDeleteItemLink($icmsConfig['show_content_edit_onlyurl'], $icmsConfig['show_content_edit_image'], $icmsConfig['show_content_edit_userside']);
 		$ret['userCanEditAndDelete'] = $this->userCanEditAndDelete();
 		$ret['content_posterid'] = $this->getVar('content_uid', 'e');
 		$ret['itemLink'] = $this->getItemLink();

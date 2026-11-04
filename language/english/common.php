@@ -49,6 +49,8 @@ define("_CO_CONTENT_CONTENT_INFO", "Published by %s on %s. (%u reads)");
 define("_CO_CONTENT_CONTENT_FROM_USER", "All contents of %s");
 define("_CO_CONTENT_CONTENT_COMMENTS_INFO", "%d comments");
 define("_CO_CONTENT_CONTENT_NO_COMMENT", "No comment");
+define("_CO_CONTENT_CONTENT_BACKGROUND_IMAGE", "article Background Image");
+define("_CO_CONTENT_CONTENT_BACKGROUND_IMAGE_DSC", "The background image (full-page) of an article.");
 
 //Status
 define("_CO_CONTENT_CONTENT_STATUS_PUBLISHED", "Published");

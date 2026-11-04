@@ -55,6 +55,9 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 
 		icms_loadLanguageFile(basename(dirname(__FILE__, 2)), 'common');
 		$this->addPermission('content_read', _CO_CONTENT_CONTENT_READ, _CO_CONTENT_CONTENT_READ_DSC);
+        $mimetypes = array('image/jpeg', 'image/png', 'image/gif', 'image/webp');
+        //TODO make this work with icms_getConfig
+        $this->enableUpload($mimetypes, 5000000, 2500, 2500);
 	}
 
 	/**
@@ -163,11 +166,22 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * Get single content object
 	 *
 	 * @param int $content_id
-	 * @return object ImreportingContent object
+	 * @return object Content object
+	 * @throws InvalidArgumentException if content_id is invalid or empty
+	 * @throws RuntimeException if content object cannot be found
 	 */
 	public function getContent($content_id) {
+		if (empty($content_id)) {
+			throw new InvalidArgumentException('Content ID cannot be empty');
+		}
+
 		$ret = $this->getContents(0, 0, false, false, $content_id);
-		return isset($ret[$content_id]) ? $ret[$content_id] : false;
+
+		if (!isset($ret[$content_id])) {
+			throw new RuntimeException(sprintf('Content with ID "%s" not found', $content_id));
+		}
+
+		return $ret[$content_id];
 	}
 
 
@@ -267,21 +281,27 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 *
 	 * @param int $content_id
 	 *
-	 * @return VOID
+	 * @return void
+	 * @throws InvalidArgumentException if content_id is invalid
+	 * @throws RuntimeException if content object cannot be retrieved or is invalid
 	 */
 	public function updateCounter($id) {
 		global $content_isAdmin;
 
+		if (empty($id)) {
+			throw new InvalidArgumentException('Content ID cannot be empty');
+		}
+
 		$contentObj = $this->get($id);
-		if (!is_object($contentObj)) return false;
+		if (!is_object($contentObj)) {
+			throw new RuntimeException(sprintf('Content object with ID "%s" could not be retrieved or is invalid', $id));
+		}
 
 		if (!is_object(icms::$user) || (!$content_isAdmin && $contentObj->getVar('content_uid', 'e') != icms::$user->uid ())) {
 			$contentObj->updating_counter = true;
 			$contentObj->setVar('counter', $contentObj->getVar('counter', 'n') + 1);
 			$this->insert($contentObj, true);
 		}
-
-		return true;
 	}
 
 
@@ -302,7 +322,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 *
 	 * @return array of contents
 	 */
-	public function getContentSubs($content_id = 0, $toarray=false) {
+	public function getContentSubs($content_id = 0, $toarray=false): array
+    {
 		$criteria = $this->getContentsCriteria();
 		$criteria->add(new icms_db_criteria_Item('content_pid', $content_id));
 		$crit = new icms_db_criteria_Compo(new icms_db_criteria_Item('content_visibility', 2));
@@ -322,13 +343,14 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	}
 
 
-	public function getList($content_status = null, $limit = 0,$start=0,$debug=false) {
+	public function getList($content_status = null, $limit = 0, $start = 0, $debug = false) {
 		$criteria = new icms_db_criteria_Compo();
 
 		if (isset($content_status)) {
 			$criteria->add(new icms_db_criteria_Item('content_status', (int)$content_status));
 		}
-		$contents = $this->getObjects($criteria, true);
+        $objects = $this->getObjects($criteria, true);
+        $contents = &$objects;
 		foreach(array_keys($contents) as $i) {
 			$ret[$contents[$i]->getVar('content_id')] = $contents[$i]->getVar('content_title');
 		}
@@ -336,7 +358,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	}
 
 
-	public function getContentList($groups = array(), $perm = 'content_read', $status = null, $content_id = null, $showNull = true) {
+	public function getContentList($groups = array(), $perm = 'content_read', $status = null, $content_id = null, $showNull = true): array
+    {
 		$criteria = new icms_db_criteria_Compo();
 		if (is_array($groups) && !empty($groups)) {
 			$criteriaTray = new icms_db_criteria_Compo();
@@ -371,8 +394,26 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	}
 
 
+	/**
+	 * Create a link for the content based on short_url or content_id
+	 *
+	 * @param object $content Content object
+	 * @return string|int The link (either short_url or content_id)
+	 * @throws InvalidArgumentException if content is not a valid object
+	 */
 	public function makeLink($content) {
-		$count = $this->getCount(new icms_db_criteria_Item("short_url", $content->getVar("short_url")));
+		if (!is_object($content)) {
+			throw new InvalidArgumentException('Content parameter must be a valid object');
+		}
+
+		$short_url = $content->getVar("short_url");
+
+		// If short_url is empty, return content_id as fallback
+		if (empty($short_url)) {
+			return $content->getVar('content_id');
+		}
+
+		$count = $this->getCount(new icms_db_criteria_Item("short_url", $short_url));
 
 		if ($count > 1) {
 			return $content->getVar('content_id');
@@ -382,11 +423,23 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 		}
 	}
 
+	/**
+	 * Get the most recently created content
+	 *
+	 * @param bool $asObj Whether to return as object (true) or array (false)
+	 * @return object|int The most recently created content object or its ID
+	 * @throws RuntimeException if no content objects are found
+	 */
 	public function getLastestCreated($asObj=true){
 		$criteria = $this->getContentsCriteria(0,1);
 		$criteria->setSort('content_id');
 		$criteria->setOrder('DESC');
 		$ret = $this->getObjects($criteria, false, $asObj);
+
+		if (empty($ret) || !isset($ret[0])) {
+			throw new RuntimeException('No content objects found in the database');
+		}
+
 		if ($asObj){
 			return $ret[0];
 		}else{
@@ -398,38 +451,40 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * Function to create a navigation menu in content pages.
 	 * This function was based on the function that do the same in mastop publish module
 	 *
-	 * @param integer $content_id
-	 * @return string
+	 * @param integer $content_id Content ID (0 for root level)
+	 * @param bool $userside
+	 * @return string|false Breadcrumb HTML string, or false if content_id is 0 (root level)
+	 * @throws RuntimeException if content object cannot be retrieved
 	 */
-	public function getBreadcrumbForPid($content_id, $userside=false){
+	public function getBreadcrumbForPid(int $content_id, $userside=false){
 		$url = $_SERVER['PHP_SELF'];
-		$ret = false;
 
-		if ($content_id == false) {
-			return $ret;
+		// Return false for root level (content_id = 0)
+		if ($content_id <= 0) {
+			return false;
+		}
+
+		$content = $this->get($content_id);
+		if (!is_object($content) || $content->getVar('content_id', 'e') <= 0) {
+			throw new RuntimeException(sprintf('Content with ID "%d" could not be retrieved or is invalid', $content_id));
+		}
+
+		if (!$userside) {
+			$ret = "<a href='" . $url . "?content_id=" . $content->getVar('content_id', 'e') . "&amp;content_pid=" . $content->getVar('content_id', 'e') . "'>" . $content->getVar('content_title', 'e') . "</a>";
 		} else {
-			if ($content_id > 0) {
-				$content = $this->get($content_id);
-				if ($content->getVar('content_id', 'e') > 0) {
-					if (!$userside) {
-						$ret = "<a href='" . $url . "?content_id=" . $content->getVar('content_id', 'e') . "&amp;content_pid=" . $content->getVar('content_id', 'e') . "'>" . $content->getVar('content_title', 'e') . "</a>";
-					} else {
-						$ret = "<a href='" . $url . "?content_id=" . $content->getVar('content_id', 'e') . "&amp;page=" . $this->makeLink($content) . "'>" . $content->getVar('content_title', 'e') . "</a>";
-					}
-					if ($content->getVar('content_pid', 'e') == 0) {
-						if (!$userside){
-							return "<a href='" . $url . "?content_id=" . $content->getVar('content_id', 'e') . "&amp;content_pid=0'>" . _MI_CONTENT_CONTENTS . "</a> &gt; " . $ret;
-						} else {
-							return $ret;
-						}
-					} elseif ($content->getVar('content_pid','e') > 0) {
-						$ret = $this->getBreadcrumbForPid($content->getVar('content_pid', 'e'), $userside) . " &gt; " . $ret;
-					}
-				}
+			$ret = "<a href='" . $url . "?content_id=" . $content->getVar('content_id', 'e') . "&amp;page=" . $this->makeLink($content) . "'>" . $content->getVar('content_title', 'e') . "</a>";
+		}
+
+		if ($content->getVar('content_pid', 'e') == 0) {
+			if (!$userside){
+				return "<a href='" . $url . "?content_id=" . $content->getVar('content_id', 'e') . "&amp;content_pid=0'>" . _MI_CONTENT_CONTENTS . "</a> &gt; " . $ret;
 			} else {
 				return $ret;
 			}
+		} elseif ($content->getVar('content_pid','e') > 0) {
+			$ret = $this->getBreadcrumbForPid($content->getVar('content_pid', 'e'), $userside) . " &gt; " . $ret;
 		}
+
 		return $ret;
 	}
 
@@ -438,14 +493,31 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 *
 	 * @param int $content_id id of the content to update
 	 * @param int $total_num total number of comments so far in this content
-	 * @return VOID
+	 * @return void
+	 * @throws InvalidArgumentException if content_id is invalid or total_num is invalid
+	 * @throws RuntimeException if content object cannot be retrieved or is new
 	 */
-	public function updateComments($content_id, $total_num) {
-		$contentObj = $this->get($content_id);
-		if ($contentObj && !$contentObj->isNew()) {
-			$contentObj->setVar('content_comments', $total_num);
-			$this->insert($contentObj, true);
+	public function updateComments($content_id, $total_num): void
+    {
+		if (empty($content_id)) {
+			throw new InvalidArgumentException('Content ID cannot be empty');
 		}
+
+		if (!is_int($total_num) || $total_num < 0) {
+			throw new InvalidArgumentException('Total number of comments must be a non-negative integer');
+		}
+
+		$contentObj = $this->get($content_id);
+		if (!$contentObj) {
+			throw new RuntimeException(sprintf('Content with ID "%s" could not be retrieved', $content_id));
+		}
+
+		if ($contentObj->isNew()) {
+			throw new RuntimeException(sprintf('Cannot update comments on a new content object with ID "%s"', $content_id));
+		}
+
+		$contentObj->setVar('content_comments', $total_num);
+		$this->insert($contentObj, true);
 	}
 
 	/**
@@ -456,7 +528,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * @param object $obj Content object
 	 * @return true
 	 */
-	protected function beforeSave(&$obj) {
+	protected function beforeSave(&$obj): bool
+    {
 		if ($obj->updating_counter)
 		return true;
 
@@ -478,7 +551,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * @param object $obj Content object
 	 * @return true
 	 */
-	protected function afterSave(&$obj) {
+	protected function afterSave(&$obj): bool
+    {
 		if ($obj->updating_counter)
 		return true;
 
@@ -520,7 +594,8 @@ class mod_content_ContentHandler extends icms_ipf_Handler {
 	 * @param object $obj Content object
 	 * @return true
 	 */
-	protected function afterDelete(&$obj) {
+	protected function afterDelete(&$obj): bool
+    {
 		$seo = $obj->handler->makelink($obj);
 		$url = str_replace(ICMS_URL . '/', '', $obj->handler->_moduleUrl . $obj->handler->_itemname . '.php?content_id=' . $obj->getVar('content_id') . '&page=' . $seo);
 		$module = icms::handler('icms_module')->getByDirname(basename(dirname(__FILE__, 2)));

@@ -130,6 +130,7 @@ if (in_array($clean_op, $valid_op, true)){
 				}else{
 					$icmsTpl->assign('content_category_path',false);
 				}
+
 			} else {
 				redirect_header(CONTENT_URL, 3, _NOPERM);
 			}
@@ -147,6 +148,27 @@ if (in_array($clean_op, $valid_op, true)){
 	 */
 	$icms_metagen = new icms_ipf_Metagen($contentObj->getVar('content_title'), $contentObj->getVar('meta_keywords','n'), $contentObj->getVar('meta_description', 'n'));
 	$icms_metagen->createMetaTags();
+    if ($contentObj->getVar('content_background_image')) {
+        $social_image_url = ICMS_URL . '/uploads/' . basename(dirname(__FILE__, 1)) . '/content/' . $contentObj->getVar('content_background_image');
+    }
+    else{
+        $social_image_url = ICMS_URL . '/uploads/' . basename(dirname(__FILE__, 1)) . '/content/default.jpg';
+    }
+    /**
+     * OpenGraph tags for Facebook
+     */
+    $xoTheme->addMeta('meta','og:title',$contentObj->getVar('content_title'));
+    $xoTheme->addMeta('meta','og:type','article');
+    $xoTheme->addMeta('meta','og:description',substr(strip_tags($contentObj->getVar('content_body')),0,120) . '...');
+    $xoTheme->addMeta('meta', 'og:image',$social_image_url);
+    /**
+     * Twitter Cards tags
+     */
+    $xoTheme->addMeta('meta','twitter:card','summary');
+    $xoTheme->addMeta('meta','twitter:title',$contentObj->getVar('content_title'));
+    $xoTheme->addMeta('meta','twitter:description',substr(strip_tags($contentObj->getVar('content_body')),0,120) . '...');
+    $xoTheme->addMeta('meta', 'twitter:image',$social_image_url);
+
 
 }
 $xoTheme->addStylesheet(ICMS_URL . '/modules/content/include/content.css');
