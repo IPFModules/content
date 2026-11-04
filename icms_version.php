@@ -35,7 +35,7 @@ $modversion = array(
 /**  Development information */
 	'status_version'			=> "1.4.1 RC",
 	'status'					=> "RC",
-	'date'						=> "4 Nov 2023",
+	'date'						=> "31 Oct 2025",
 	'author_word'				=> "Add content spotlight block",
 	'warning'					=> _CO_ICMS_WARNING_RC,
 
